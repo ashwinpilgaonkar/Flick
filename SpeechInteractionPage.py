@@ -1,9 +1,9 @@
 __author__ = 'priyanshubhatnagar'
 
 from PyQt5.QtWidgets import *
-from Flick.SpeechRecognition import listen
-from Flick.GoogleSTT import Googlelisten
-from Flick.GoogleTTS import speak
+from SpeechRecognition import listen
+from GoogleSTT import Googlelisten
+from GoogleTTS import speak
 import sys
 
 class SpeechInteractionPage(QWidget):

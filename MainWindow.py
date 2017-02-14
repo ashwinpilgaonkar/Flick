@@ -1,11 +1,9 @@
-from Flick.SpeechInteractionPage import SpeechInteractionPage
-
 __author__ = 'priyanshubhatnagar'
 
 import sys
 
 from PyQt5.QtWidgets import *
-from Flick.SpeechInteractionPage import *
+from SpeechInteractionPage import *
 
 class MainWindow(QWidget):
     def __init__(self):
