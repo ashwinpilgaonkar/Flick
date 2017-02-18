@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import *
 from SpeechRecognition import listen
 from GoogleSTT import Googlelisten
 from GoogleTTS import speak
+from GoogleNewsParser import retrieveNews
 import sys
 
 class SpeechInteractionPage(QWidget):
@@ -23,8 +24,9 @@ class SpeechInteractionPage(QWidget):
         GridLayout.addWidget(button, 0, 0)
 
     def on_button_clicked(self):
+        #text = Googlelisten()
         text = ""
         text = listen()
-        #text = Googlelisten()
         self.label.setText(text)
-        speak(text)
+        news = retrieveNews(text)
+        speak(news)
