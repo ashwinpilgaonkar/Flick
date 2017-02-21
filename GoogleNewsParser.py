@@ -14,7 +14,7 @@ def retrieveNews(query):
         link = news["stories"][0]['link'].decode("utf-8")
         content = news["stories"][0]['content_snippet'].decode("utf-8")
 
-        result = "Title. " + title + " from " + source + ". " + content
+        result = "Title. " + title + " from " + source + ". " + content + ". That's all for the news."
     except:
         result = "Sorry I did not get any results!"
     #print(news["stories"][0])
