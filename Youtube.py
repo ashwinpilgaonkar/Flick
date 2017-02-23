@@ -10,3 +10,5 @@ def playYouTube(text):
     url = "http://www.youtube.com/watch?v=" + search_results[0]
     print(url)
     webbrowser.open_new_tab(url)
+
+playYouTube("trap city")
