@@ -1,9 +1,6 @@
-__author__ = 'priyanshubhatnagar'
-
 import sys
-
 from PyQt5.QtWidgets import *
-from SpeechInteractionPage import *
+from Voice.SpeechInteractionPage import *
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -28,4 +25,3 @@ screen = MainWindow()
 screen.show()
 
 sys.exit(app.exec_())
-

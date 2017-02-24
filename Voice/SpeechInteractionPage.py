@@ -1,10 +1,8 @@
-__author__ = 'priyanshubhatnagar'
-
 from PyQt5.QtWidgets import *
-from SpeechRecognition import listen
-from GoogleSTT import Googlelisten
-from GoogleTTS import speak
-from GoogleNewsParser import retrieveNews
+from Voice.SpeechRecognition import listen
+from Voice.GoogleSTT import Googlelisten
+from Voice.GoogleTTS import speak
+from Voice.GoogleNewsParser import retrieveNews
 import sys
 
 class SpeechInteractionPage(QWidget):

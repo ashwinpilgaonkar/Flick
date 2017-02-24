@@ -1,6 +1,8 @@
-import gnp
 import codecs
 import json
+
+from Voice import gnp
+
 
 def retrieveNews(query):
     try:
