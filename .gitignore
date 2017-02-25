@@ -108,3 +108,17 @@ MainWindow.py
 *.iml
 
 *.xml
+
+.idea/workspace.xml
+
+*.iml
+
+*.xml
+
+*.xml
+
+.idea/Flick.iml
+
+.idea/misc.xml
+
+.idea/workspace.xml
