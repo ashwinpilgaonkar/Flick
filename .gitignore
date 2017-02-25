@@ -89,4 +89,6 @@ ENV/
 .ropeproject
 
 GoogleSTTJson
-
+.idea/misc.xml
+.idea/workspace.xml
+*.xml
