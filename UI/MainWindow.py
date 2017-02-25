@@ -22,6 +22,12 @@ class Ui_MainWindow(object):
         self.tabWidget.setObjectName("tabWidget")
         self.TabControls = QtWidgets.QWidget()
         self.TabControls.setObjectName("TabControls")
+        self.label = QtWidgets.QLabel(self.TabControls)
+        self.label.setGeometry(QtCore.QRect(240, 110, 221, 21))
+        self.label.setObjectName("label")
+        self.pushButton = QtWidgets.QPushButton(self.TabControls)
+        self.pushButton.setGeometry(QtCore.QRect(250, 170, 75, 23))
+        self.pushButton.setObjectName("pushButton")
         self.tabWidget.addTab(self.TabControls, "")
         self.TabVA = QtWidgets.QWidget()
         self.TabVA.setObjectName("TabVA")
@@ -89,12 +95,14 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.label.setText(_translate("MainWindow", "Add new Gesture"))
+        self.pushButton.setText(_translate("MainWindow", "PushButton"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.TabControls), _translate("MainWindow", "Controls"))
         self.TalkButton.setText(_translate("MainWindow", "Talk"))
         self.VoiceLabel.setText(_translate("MainWindow", "Hi! I\'m your virtual assistant."))
