@@ -600,9 +600,9 @@ SoftWire Wire = SoftWire();
 // But only if the AD0 pin is low.
 // Some sensor boards have AD0 high, and the
 // I2C address thus becomes 0x69.
-#define MPU6050_I2C_ADDRESS 0x68
+#define MPU6050_I2C_ADDRESS 0x69
  
- 
+ int flag=6;
 // Declaring an union for the registers and the axis values.
 // The byte order does not match the byte order of
 // the compiler and AVR chip.
@@ -642,10 +642,16 @@ typedef union accel_t_gyro_union
     int16_t z_gyro;
   } value;
 };
+int pin3=3;
+int pin6=6;
+int pin7=7;
+int pin8=8;
+int pin9=9;
 
 
-const int MPU_addr=0x68;  // I2C address of the MPU-6050
-int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
+const int MPU_addr=0x69;  // I2C address of the MPU-6050
+//int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
+
 void setup(){
 
  int error;
@@ -659,6 +665,19 @@ void setup(){
   Serial.println(F("June 2012"));
  
   while (!Serial);             // Leonardo: wait for serial monitor
+  int i;
+    for(i=6;i<=10;i++)
+    {
+      for(int j=6;j<=10;j++)
+      {
+        if(i!=j)
+        {
+          pinMode(j,OUTPUT);
+        digitalWrite(j,LOW);
+        }
+      }
+      pinMode(i,OUTPUT);
+      digitalWrite(i,HIGH);
   error = MPU6050_read (MPU6050_WHO_AM_I, &c, 1);
   Serial.print(F("WHO_AM_I : "));
   Serial.print(c,HEX);
@@ -674,23 +693,32 @@ void setup(){
   Serial.print(c,HEX);
   Serial.print(F(", error = "));
   Serial.println(error,DEC);
- 
+    
  
   // Clear the 'sleep' bit to start the sensor.
   MPU6050_write_reg (MPU6050_PWR_MGMT_1, 0);
   Serial.println("\nI2C Scanner");
-  
+    }
 }
 void loop(){
 
 byte error, address;
+address=105;
   int nDevices;
   
   Serial.println(F("Scanning I2C bus (7-bit addresses) ..."));
-  
   nDevices = 0;
-  for(address = 1; address < 127; address++ )
-    {
+  for(int j=6;j<=10;j++)
+      {
+        if(flag!=j)
+        {
+        pinMode(j,OUTPUT);
+        digitalWrite(j,LOW);
+          
+        }
+      }
+      pinMode(flag,OUTPUT);
+      digitalWrite(flag,HIGH);
       // The i2c_scanner uses the return value of
       // the Write.endTransmisstion to see if
       // a device did acknowledge to the address.
@@ -699,6 +727,8 @@ byte error, address;
       
       if (error == 0)
         {
+          Serial.print("MPU number : ");
+          Serial.println(flag-5); 
           Serial.print(F("I2C device found at address 0x"));
           if (address<16)
             Serial.print(F("0"));
@@ -775,24 +805,29 @@ byte error, address;
   Serial.print(F(", "));
   Serial.println(F(""));
  
-  delay(1000);
+ //delay(1000);
 
     
           nDevices++;
+          
         }
       else if (error==4)
         {
-          Serial.print(F("Unknow error at address 0x"));
+          Serial.print(F("Unknown error at address 0x"));
           if (address<16)
             Serial.print("0");
           Serial.println(address,HEX);
         }    
-    }
+    
   if (nDevices == 0)
     Serial.println("No I2C devices found\n");
   else 
     Serial.println("done\n");
-  
+
+  if(flag==1078io)
+    flag=6;
+    else
+      flag++;
   //delay(5000);           // wait 5 seconds for next scan
 }
 
