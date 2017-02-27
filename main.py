@@ -1,11 +1,8 @@
 import sys
 from PyQt5.QtWidgets import *
 from Voice.SpeechRecognition import listen
-from Voice.GoogleTTS import speak
-from Voice.GoogleNewsParser import retrieveNews
 import UI.MainWindow
 import threading
-from multiprocessing import Queue
 
 class MainWindow(QMainWindow, UI.MainWindow.Ui_MainWindow):
 
@@ -49,19 +46,10 @@ class MainWindow(QMainWindow, UI.MainWindow.Ui_MainWindow):
 
     def TalkButton_OnClick(self):
         #Convert listened speech to text
-        queue = Queue()
-        text = ""
         self.VoiceLabel.setText("Listening...")
-        listen_thread = threading.Thread(target=listen)
+        listen_thread = threading.Thread(target=listen,args=self.VoiceLabel)
         listen_thread.start()
 
-        #text = queue.get()
-        #self.VoiceLabel.setText(text)
-
-        #Speak recognized text (STT)
-        if not listen_thread.is_alive():
-            news = retrieveNews(text)
-            speak(news)
 
 def main():
     app = QApplication(sys.argv)
