@@ -12,6 +12,9 @@
      
 #include "SoftWire.h"
 
+#include <SoftwareSerial.h>
+SoftwareSerial mySerial(2, 3);
+
 SoftWire Wire = SoftWire();
 
 
@@ -660,7 +663,7 @@ void setup(){
   
   Wire.begin();
   
-  Serial.begin(115200);
+  Serial.begin(9600);
   Serial.println(F("InvenSense MPU-6050"));
   Serial.println(F("June 2012"));
  
@@ -699,6 +702,8 @@ void setup(){
   MPU6050_write_reg (MPU6050_PWR_MGMT_1, 0);
   Serial.println("\nI2C Scanner");
     }
+      mySerial.begin(9600);
+
 }
 void loop(){
 
@@ -773,12 +778,25 @@ address=105;
   // Print the raw acceleration values
  
   Serial.print(F("accel x,y,z: "));
-  Serial.print(accel_t_gyro.value.x_accel, DEC);
-  Serial.print(F(", "));
-  Serial.print(accel_t_gyro.value.y_accel, DEC);
-  Serial.print(F(", "));
-  Serial.print(accel_t_gyro.value.z_accel, DEC);
-  Serial.println(F(""));
+  mySerial.println("The Accl X value is : ");
+  //Serial.print(accel_t_gyro.value.x_accel, DEC);
+  //Serial.print(F(", "));
+    mySerial.print(accel_t_gyro.value.x_accel);
+  mySerial.print("\n");
+    mySerial.println("The Accl Y value is : ");
+//Serial.print(accel_t_gyro.value.y_accel, DEC);
+      mySerial.print(accel_t_gyro.value.y_accel);
+  mySerial.print("\n");
+
+ // Serial.print(F(", "));
+   mySerial.println("The Accl X value is : ");
+
+  //Serial.print(accel_t_gyro.value.z_accel, DEC);
+     mySerial.print(accel_t_gyro.value.z_accel);
+
+  //Serial.println(F(""));
+    mySerial.print("\n");
+
  
  
   // The temperature sensor is -40 to +85 degrees Celsius.
@@ -787,23 +805,34 @@ address=105;
   //   340 per degrees Celsius, -512 at 35 degrees.
   // At 0 degrees: -512 - (340 * 35) = -12412
  
-  Serial.print(F("temperature: "));
+  /*Serial.print(F("temperature: "));
   dT = ( (double) accel_t_gyro.value.temperature + 12412.0) / 340.0;
   Serial.print(dT, 3);
   Serial.print(F(" degrees Celsius"));
-  Serial.println(F(""));
+  Serial.println(F(""));*/
  
  
   // Print the raw gyro values.
  
   Serial.print(F("gyro x,y,z : "));
-  Serial.print(accel_t_gyro.value.x_gyro, DEC);
-  Serial.print(F(", "));
-  Serial.print(accel_t_gyro.value.y_gyro, DEC);
-  Serial.print(F(", "));
-  Serial.print(accel_t_gyro.value.z_gyro, DEC);
-  Serial.print(F(", "));
-  Serial.println(F(""));
+  mySerial.println("The Gyro X value is : ");
+  mySerial.print(accel_t_gyro.value.x_gyro);
+      mySerial.print("\n");
+  //Serial.print(accel_t_gyro.value.x_gyro, DEC);
+  //Serial.print(F(", "));
+  //Serial.print(accel_t_gyro.value.y_gyro, DEC);
+    mySerial.println("The Gyro Y value is : ");
+    mySerial.print(accel_t_gyro.value.y_gyro);
+        mySerial.print("\n");
+
+  //Serial.print(F(", "));
+  //Serial.print(accel_t_gyro.value.z_gyro, DEC);
+    mySerial.println("The Gyro Z value is : ");
+    mySerial.print(accel_t_gyro.value.z_gyro);
+        mySerial.print("\n");
+
+  //Serial.print(F(", "));
+  //Serial.println(F(""));
  
  //delay(1000);
 
@@ -824,7 +853,7 @@ address=105;
   else 
     Serial.println("done\n");
 
-  if(flag==1078io)
+  if(flag==10)
     flag=6;
     else
       flag++;
