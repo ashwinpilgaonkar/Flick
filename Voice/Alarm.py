@@ -1,7 +1,7 @@
 import os
 import time
 
-def setReminder(hours, minutes):
+def setReminder(hours, minutes): #Put Threading!!
     not_executed = 1
     while (not_executed):
         dt = list(time.localtime())
@@ -11,5 +11,6 @@ def setReminder(hours, minutes):
         print(hour, " ", minute)
         if hour == hours and minute == minutes:
             os.system("mpg321 Glass.mp3")
+            not_executed = 0
+            print("Reminder executed!")
             break
-    not_executed = 0
