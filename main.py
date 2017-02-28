@@ -2,7 +2,6 @@ import sys
 from PyQt5.QtWidgets import *
 from Voice.SpeechRecognition import listen
 import UI.MainWindow
-import threading
 from multiprocessing.pool import ThreadPool
 
 class MainWindow(QMainWindow, UI.MainWindow.Ui_MainWindow):
