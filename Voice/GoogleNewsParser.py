@@ -2,8 +2,8 @@ import codecs
 import json
 
 from Voice import gnp
-
-
+import threading
+from Voice.GoogleTTS import speak
 def retrieveNews(query):
     try:
         news = gnp.get_google_news_query(query)
@@ -16,7 +16,7 @@ def retrieveNews(query):
         link = news["stories"][0]['link'].decode("utf-8")
         content = news["stories"][0]['content_snippet'].decode("utf-8")
 
-        result = "Title. " + title + " from " + source + ". " + content + ". That's all for the news."
+        result =  content + ". " + "News was brought to you by " + source + ". " + ". That's all for the news."
     except:
         result = "Sorry I did not get any results!"
     #print(news["stories"][0])
@@ -26,5 +26,8 @@ def retrieveNews(query):
     #print(content)
     print(result)
     #print(news["stories"][0]["content"])
-
+    t = threading.Thread(target=speak, args=(result,))
+    t.start()
     return result
+
+#retrieveNews("America hate crime")
