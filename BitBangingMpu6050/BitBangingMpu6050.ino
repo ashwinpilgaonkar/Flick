@@ -663,7 +663,7 @@ void setup(){
   
   Wire.begin();
   
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.println(F("InvenSense MPU-6050"));
   Serial.println(F("June 2012"));
  
@@ -702,7 +702,7 @@ void setup(){
   MPU6050_write_reg (MPU6050_PWR_MGMT_1, 0);
   Serial.println("\nI2C Scanner");
     }
-      mySerial.begin(9600);
+      mySerial.begin(115200);
 
 }
 void loop(){
@@ -789,7 +789,7 @@ address=105;
   mySerial.print("\n");
 
  // Serial.print(F(", "));
-   mySerial.println("The Accl X value is : ");
+   mySerial.println("The Accl Z value is : ");
 
   //Serial.print(accel_t_gyro.value.z_accel, DEC);
      mySerial.print(accel_t_gyro.value.z_accel);
