@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'D:/AndroidApps/Flick/UI/MainWindow.ui'
+# Form implementation generated from reading ui file 'MainWindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.6
+# Created by: PyQt5 UI code generator 5.7.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -101,13 +101,13 @@ class Ui_MainWindow(object):
         self.TabVA = QtWidgets.QWidget()
         self.TabVA.setObjectName("TabVA")
         self.TalkButton = QtWidgets.QPushButton(self.TabVA)
-        self.TalkButton.setGeometry(QtCore.QRect(350, 80, 131, 91))
+        self.TalkButton.setGeometry(QtCore.QRect(330, 80, 131, 91))
         font = QtGui.QFont()
         font.setPointSize(25)
         self.TalkButton.setFont(font)
         self.TalkButton.setObjectName("TalkButton")
         self.VoiceLabel = QtWidgets.QLabel(self.TabVA)
-        self.VoiceLabel.setGeometry(QtCore.QRect(0, 180, 831, 111))
+        self.VoiceLabel.setGeometry(QtCore.QRect(0, 180, 811, 111))
         self.VoiceLabel.setTextFormat(QtCore.Qt.AutoText)
         self.VoiceLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.VoiceLabel.setObjectName("VoiceLabel")
@@ -158,13 +158,27 @@ class Ui_MainWindow(object):
         self.verticalScrollBar.setTracking(True)
         self.verticalScrollBar.setOrientation(QtCore.Qt.Vertical)
         self.verticalScrollBar.setObjectName("verticalScrollBar")
+        self.label_11 = QtWidgets.QLabel(self.scrollAreaWidgetContents)
+        self.label_11.setGeometry(QtCore.QRect(10, 160, 71, 21))
+        self.label_11.setObjectName("label_11")
+        self.label_12 = QtWidgets.QLabel(self.scrollAreaWidgetContents)
+        self.label_12.setGeometry(QtCore.QRect(10, 190, 71, 21))
+        self.label_12.setObjectName("label_12")
+        self.progressBar_6 = QtWidgets.QProgressBar(self.scrollAreaWidgetContents)
+        self.progressBar_6.setGeometry(QtCore.QRect(100, 160, 151, 23))
+        self.progressBar_6.setProperty("value", 24)
+        self.progressBar_6.setObjectName("progressBar_6")
+        self.progressBar_7 = QtWidgets.QProgressBar(self.scrollAreaWidgetContents)
+        self.progressBar_7.setGeometry(QtCore.QRect(100, 190, 151, 23))
+        self.progressBar_7.setProperty("value", 24)
+        self.progressBar_7.setObjectName("progressBar_7")
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.tabWidget.addTab(self.TabVA, "")
         self.gridLayout.addWidget(self.tabWidget, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -191,5 +205,7 @@ class Ui_MainWindow(object):
         self.label_5.setText(_translate("MainWindow", "Email"))
         self.label_6.setText(_translate("MainWindow", "Reminder"))
         self.label_4.setText(_translate("MainWindow", "Statistics"))
+        self.label_11.setText(_translate("MainWindow", "News"))
+        self.label_12.setText(_translate("MainWindow", "Type"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.TabVA), _translate("MainWindow", "Virtual Assistant"))
 

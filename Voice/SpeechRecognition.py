@@ -2,7 +2,7 @@ __author__ = 'priyanshubhatnagar'
 
 import speech_recognition as sr
 
-def listen(LabelHypothesis):
+def listen():
     r = sr.Recognizer()
     with sr.Microphone() as source:
         print("Say something!")
@@ -17,7 +17,4 @@ def listen(LabelHypothesis):
     except sr.RequestError as e:
         print("Could not request results from Google Speech Recognition service; {0}".format(e))
         text = "Could not request results from Google Speech Recognition service; {0}".format(e)
-
-    LabelHypothesis.setText(text)
-
-def extractInfo():
+    return text

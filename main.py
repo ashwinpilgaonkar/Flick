@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import *
 from Voice.SpeechRecognition import listen
 import UI.MainWindow
 import threading
+from multiprocessing.pool import ThreadPool
 
 class MainWindow(QMainWindow, UI.MainWindow.Ui_MainWindow):
 
@@ -47,9 +48,10 @@ class MainWindow(QMainWindow, UI.MainWindow.Ui_MainWindow):
     def TalkButton_OnClick(self):
         #Convert listened speech to text
         self.VoiceLabel.setText("Listening...")
-        listen_thread = threading.Thread(target=listen,args=self.VoiceLabel)
-        listen_thread.start()
-
+        pool = ThreadPool(processes=1)
+        async_result = pool.apply_async(listen)
+        result_text = async_result.get()
+        self.VoiceLabel.setText(result_text)
 
 def main():
     app = QApplication(sys.argv)
