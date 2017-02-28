@@ -463,22 +463,6 @@
            <set>Qt::AlignCenter</set>
           </property>
          </widget>
-         <widget class="QScrollBar" name="verticalScrollBar">
-          <property name="geometry">
-           <rect>
-            <x>780</x>
-            <y>0</y>
-            <width>20</width>
-            <height>251</height>
-           </rect>
-          </property>
-          <property name="tracking">
-           <bool>true</bool>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-         </widget>
          <widget class="QLabel" name="label_11">
           <property name="geometry">
            <rect>
