@@ -1,8 +1,8 @@
 import serial
 
 def bluetoothRight():
-    port = "/dev/tty.HC-05-DevB"
-    bluetooth = serial.Serial(port, 9600)
+    port = "/dev/tty.Right-DevB"
+    bluetooth = serial.Serial(port, 115200)
     print("Connected Right Hand Bluetooth")
     bluetooth.flushInput()
     while 1:
@@ -18,3 +18,5 @@ def bluetoothRight():
 
     bluetooth.close()
     print("closed BLU right hand!")
+
+bluetoothRight()
