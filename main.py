@@ -37,8 +37,12 @@ class MainWindow(QMainWindow, UI.MainWindow.Ui_MainWindow, QTableWidget):
 
         dbOp = Gesture.Database.dbOperation()
         dbOp.create()
-        dbOp.read()
-        dbOp.db.close()
+        count = dbOp.read()
+        dbOp.insert(count+1, "ADS", "QWE")
+        count = dbOp.read()
+        dbOp.delete()
+
+        dbOp.close()
 
         self.dbTable.setColumnCount(2)
         self.dbTable.setHeaderLabels(["Name", "Shortcut"])

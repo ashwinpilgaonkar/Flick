@@ -1,3 +1,4 @@
 pyaudio
 gnp
 speech_recognition
+pyserial
