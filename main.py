@@ -65,6 +65,8 @@ class MainWindow(QMainWindow, UI.MainWindow.Ui_MainWindow, QTableWidget):
         pool = ThreadPool(processes=1)
         async_result = pool.apply_async(listen)
         result_text = async_result.get()
+        pool.close()
+        pool.join()
         self.VoiceLabel.setText(result_text)
 
 
