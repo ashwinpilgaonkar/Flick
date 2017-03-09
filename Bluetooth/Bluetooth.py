@@ -6,8 +6,8 @@ def bluetoothRight():
     print("Connected Right Hand Bluetooth")
     bluetooth.flushInput()
     while 1:
-        input_data = bluetooth.readline()
         try:
+            input_data = bluetooth.readline()
             try:
                 print(input_data.decode())
                 print('\n')
