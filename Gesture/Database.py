@@ -7,10 +7,15 @@ class dbOperation():
         print ("Opened database successfully")
 
     def create(self):
-        self.db.execute('''CREATE TABLE IF NOT EXISTS Gestures (ID INT, Name TEXT, Shortcut TEXT);''')
+        self.db.execute('''CREATE TABLE IF NOT EXISTS Gestures (ID INT, Name TEXT, Shortcut TEXT,
+        F1X FLOAT, F1Y FLOAT, F1Z FLOAT,
+        F2X FLOAT, F2Y FLOAT, F2Z FLOAT,
+        F3X FLOAT, F3Y FLOAT, F3Z FLOAT,
+        F4X FLOAT, F4Y FLOAT, F4Z FLOAT,
+        F5X FLOAT, F5Y FLOAT, F5Z FLOAT);''')
 
     def insert(self, ID, Name, Shortcut):
-        self.db.execute("INSERT INTO Gestures (ID, Name, Shortcut) \
+        self.db.execute("INSERT INTO Gestures (ID, Name, Shortcut, F1X, F1Y, F1Z, F2X, F2Y, F2Z, F3X, F3Y, F3Z, F4X, F4Y, F4Z, F5X, F5Y, F5Z) \
               VALUES (?, ?, ? )", (ID, Name, Shortcut));
 
         self.db.commit()
@@ -26,8 +31,8 @@ class dbOperation():
 
         return counter
 
-    def delete(self):
-        self.db.execute("DELETE from Gestures where ID=1;")
+    def delete(self, ID):
+        self.db.execute("DELETE from Gestures where ID=?;", (ID))
         self.db.commit()
 
     def close(self):

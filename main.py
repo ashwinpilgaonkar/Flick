@@ -4,6 +4,7 @@ from Voice.SpeechRecognition import listen
 import UI.MainWindow
 import Gesture.Database
 from multiprocessing.pool import ThreadPool
+import pyautogui
 
 class MainWindow(QMainWindow, UI.MainWindow.Ui_MainWindow, QTableWidget):
 
@@ -51,9 +52,12 @@ class MainWindow(QMainWindow, UI.MainWindow.Ui_MainWindow, QTableWidget):
         print("Add")
 
     def ClearButton_OnClick(self):
+
         print("Clear")
 
     def SaveButton_OnClick(self):
+        pyautogui.keyDown('alt')
+        pyautogui.keyDown('f4')
         print("Save")
 
     def Dropdown_OnChange(self):
@@ -66,7 +70,6 @@ class MainWindow(QMainWindow, UI.MainWindow.Ui_MainWindow, QTableWidget):
         async_result = pool.apply_async(listen)
         result_text = async_result.get()
         self.VoiceLabel.setText(result_text)
-
 
 def main():
     app = QApplication(sys.argv)
