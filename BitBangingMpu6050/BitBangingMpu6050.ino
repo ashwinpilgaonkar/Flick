@@ -1,7 +1,4 @@
-// MPU-6050 Short Example Sketch
-// By Arduino User JohnChi
-// August 17, 2014
-// Public Domain
+//Flick Project
 #define SDA_PORT PORTD
 #define SDA_PIN 4
 #define SCL_PORT PORTD
@@ -615,6 +612,7 @@ SoftWire Wire = SoftWire();
 // lower address, so that has to be corrected.
 // The register part "reg" is only used internally,
 // and are swapped in code.
+
 typedef union accel_t_gyro_union
 {
   struct
@@ -625,8 +623,6 @@ typedef union accel_t_gyro_union
     uint8_t y_accel_l;
     uint8_t z_accel_h;
     uint8_t z_accel_l;
-    uint8_t t_h;
-    uint8_t t_l;
     uint8_t x_gyro_h;
     uint8_t x_gyro_l;
     uint8_t y_gyro_h;
@@ -639,17 +635,75 @@ typedef union accel_t_gyro_union
     int16_t x_accel;
     int16_t y_accel;
     int16_t z_accel;
-    int16_t temperature;
     int16_t x_gyro;
     int16_t y_gyro;
     int16_t z_gyro;
   } value;
 };
-int pin3=3;
-int pin6=6;
-int pin7=7;
-int pin8=8;
-int pin9=9;
+
+int read_gyro_accel_vals(uint8_t* accel_t_gyro_ptr) {
+  // Read the raw values.
+  // Read 14 bytes at once, 
+  // containing acceleration, temperature and gyro.
+  // With the default settings of the MPU-6050,
+  // there is no filter enabled, and the values
+  // are not very stable.  Returns the error value
+  
+  accel_t_gyro_union* accel_t_gyro = (accel_t_gyro_union *) accel_t_gyro_ptr;
+   
+  int error = MPU6050_read (MPU6050_ACCEL_XOUT_H, (uint8_t *) accel_t_gyro, sizeof(*accel_t_gyro));
+
+  // Swap all high and low bytes.
+  // After this, the registers values are swapped, 
+  // so the structure name like x_accel_l does no 
+  // longer contain the lower byte.
+  uint8_t swap;
+  #define SWAP(x,y) swap = x; x = y; y = swap
+
+  SWAP ((*accel_t_gyro).reg.x_accel_h, (*accel_t_gyro).reg.x_accel_l);
+  SWAP ((*accel_t_gyro).reg.y_accel_h, (*accel_t_gyro).reg.y_accel_l);
+  SWAP ((*accel_t_gyro).reg.z_accel_h, (*accel_t_gyro).reg.z_accel_l);
+  SWAP ((*accel_t_gyro).reg.x_gyro_h, (*accel_t_gyro).reg.x_gyro_l);
+  SWAP ((*accel_t_gyro).reg.y_gyro_h, (*accel_t_gyro).reg.y_gyro_l);
+  SWAP ((*accel_t_gyro).reg.z_gyro_h, (*accel_t_gyro).reg.z_gyro_l);
+
+  return error;
+}
+
+unsigned long last_read_time[5];
+float         last_x_angle[5];  // These are the filtered angles
+float         last_y_angle[5];
+float         last_z_angle[5];  
+float         last_gyro_x_angle[5];  // Store the gyro angles to compare drift
+float         last_gyro_y_angle[5];
+float         last_gyro_z_angle[5];
+
+
+void set_last_read_angle_data(unsigned long time, float x, float y, float z, float x_gyro, float y_gyro, float z_gyro, int a) {
+  last_read_time[a] = time;
+  last_x_angle[a] = x;
+  last_y_angle[a] = y;
+  last_z_angle[a] = z;
+  last_gyro_x_angle[a] = x_gyro;
+  last_gyro_y_angle[a] = y_gyro;
+  last_gyro_z_angle[a] = z_gyro;
+}
+
+inline unsigned long get_last_time(int a) {return last_read_time[a];}
+inline float get_last_x_angle(int a) {return last_x_angle[a];}
+inline float get_last_y_angle(int a) {return last_y_angle[a];}
+inline float get_last_z_angle(int a) {return last_z_angle[a];}
+inline float get_last_gyro_x_angle(int a) {return last_gyro_x_angle[a];}
+inline float get_last_gyro_y_angle(int a) {return last_gyro_y_angle[a];}
+inline float get_last_gyro_z_angle(int a) {return last_gyro_z_angle[a];}
+
+float    base_x_accel[5];
+float    base_y_accel[5];
+float    base_z_accel[5];
+
+float    base_x_gyro[5];
+float    base_y_gyro[5];
+float    base_z_gyro[5];
 
 
 const int MPU_addr=0x69;  // I2C address of the MPU-6050
@@ -703,31 +757,73 @@ void setup(){
   Serial.println("\nI2C Scanner");
     }
       mySerial.begin(115200);
-
+      calibrate_sensor1();
+      set_last_read_angle_data(millis(), 0, 0, 0, 0, 0, 0, 0);
+      calibrate_sensor2();
+      set_last_read_angle_data(millis(), 0, 0, 0, 0, 0, 0, 1);
+      calibrate_sensor3();
+      set_last_read_angle_data(millis(), 0, 0, 0, 0, 0, 0, 2);
+      calibrate_sensor4();
+      set_last_read_angle_data(millis(), 0, 0, 0, 0, 0, 0, 3);
+      calibrate_sensor5();
+      set_last_read_angle_data(millis(), 0, 0, 0, 0, 0, 0, 4);
 }
+
+
+
+
 void loop(){
 
 byte error, address;
 address=105;
-  int nDevices;
+  //int nDevices;
   
-  Serial.println(F("Scanning I2C bus (7-bit addresses) ..."));
-  nDevices = 0;
+  //Serial.println(F("Scanning I2C bus (7-bit addresses) ..."));
+  //nDevices = 0;
   for(int j=6;j<=10;j++)
       {
         if(flag!=j)
         {
         pinMode(j,OUTPUT);
         digitalWrite(j,LOW);
-          
         }
       }
       pinMode(flag,OUTPUT);
       digitalWrite(flag,HIGH);
+      if(flag==6)
+      {
+        mpunumber1();
+        delay(1000);
+      }
+      if(flag==7)
+      {
+        mpunumber2();
+        delay(1000);
+      }
+       if(flag==8)
+       {
+        mpunumber3();
+        delay(1000);
+      }
+       if(flag==9)
+       {
+        {
+        mpunumber4();
+        delay(1000);
+      }
+       }
+       if(flag==10)
+       {
+        mpunumber5();
+        flag=6;
+        delay(1000);
+      }
+       else
+        ++flag;
       // The i2c_scanner uses the return value of
       // the Write.endTransmisstion to see if
       // a device did acknowledge to the address.
-      Wire.beginTransmission(address);
+      /*Wire.beginTransmission(address);
       error = Wire.endTransmission();
       
       if (error == 0)
@@ -809,7 +905,7 @@ address=105;
   dT = ( (double) accel_t_gyro.value.temperature + 12412.0) / 340.0;
   Serial.print(dT, 3);
   Serial.print(F(" degrees Celsius"));
-  Serial.println(F(""));*/
+  Serial.println(F(""));
  
  
   // Print the raw gyro values.
@@ -830,12 +926,6 @@ address=105;
     mySerial.println("The Gyro Z value is : ");
     mySerial.print(accel_t_gyro.value.z_gyro);
         mySerial.print("\n");
-
-  //Serial.print(F(", "));
-  //Serial.println(F(""));
- 
- //delay(1000);
-
     
           nDevices++;
           
@@ -857,7 +947,7 @@ address=105;
     flag=6;
     else
       flag++;
-  //delay(5000);           // wait 5 seconds for next scan
+  //delay(5000);           // wait 5 seconds for next scan*/
 }
 
 
@@ -956,4 +1046,1212 @@ int MPU6050_write_reg(int reg, uint8_t data)
  
   return (error);
 }
+
+
+void mpunumber1()
+{
+    byte error, address;
+    address=105;
+    Wire.beginTransmission(address);
+      error = Wire.endTransmission();
+      
+      if (error == 0)
+        {
+          /*Serial.print("MPU number : ");
+          Serial.println(flag-5); 
+          Serial.print(F("I2C device found at address 0x"));
+          if (address<16)
+            Serial.print(F("0"));
+          Serial.print(address,HEX);
+          Serial.println(F("  !"));*/
+        
+  int error;
+  double dT;
+  accel_t_gyro_union accel_t_gyro;
+ 
+  error = read_gyro_accel_vals((uint8_t*) &accel_t_gyro);
+  unsigned long t_now = millis();
+  /*Serial.println(F(""));
+  Serial.println(F("MPU-6050"));*/
+ 
+  // Read the raw values.
+  // Read 14 bytes at once,
+  // containing acceleration, temperature and gyro.
+  // With the default settings of the MPU-6050,
+  // there is no filter enabled, and the values
+  // are not very stable.
+  //error = MPU6050_read (MPU6050_ACCEL_XOUT_H, (uint8_t *) &accel_t_gyro, sizeof(accel_t_gyro));
+ /* Serial.print(F("Read accel, temp and gyro, error = "));
+  Serial.println(error,DEC);*/
+ 
+ 
+  // Swap all high and low bytes.
+  // After this, the registers values are swapped,
+  // so the structure name like x_accel_l does no
+  // longer contain the lower byte.
+  /*uint8_t swap;
+  #define SWAP(x,y) swap = x; x = y; y = swap
+ 
+  SWAP (accel_t_gyro.reg.x_accel_h, accel_t_gyro.reg.x_accel_l);
+  SWAP (accel_t_gyro.reg.y_accel_h, accel_t_gyro.reg.y_accel_l);
+  SWAP (accel_t_gyro.reg.z_accel_h, accel_t_gyro.reg.z_accel_l);
+  SWAP (accel_t_gyro.reg.x_gyro_h, accel_t_gyro.reg.x_gyro_l);
+  SWAP (accel_t_gyro.reg.y_gyro_h, accel_t_gyro.reg.y_gyro_l);
+  SWAP (accel_t_gyro.reg.z_gyro_h, accel_t_gyro.reg.z_gyro_l);*/
+ 
+ 
+  // Print the raw acceleration values
+ 
+ // Serial.print(F("accel x,y,z: "));
+  /*mySerial.println("The Accl X value from Thumb is : ");
+  //Serial.print(accel_t_gyro.value.x_accel, DEC);
+  //Serial.print(F(", "));
+    mySerial.print(accel_t_gyro.value.x_accel);
+  mySerial.print("\n");
+    mySerial.println("The Accl Y value from Thumb is : ");
+//Serial.print(accel_t_gyro.value.y_accel, DEC);
+      mySerial.print(accel_t_gyro.value.y_accel);
+  mySerial.print("\n");
+
+ // Serial.print(F(", "));
+   mySerial.println("The Accl Z value from Thumb is : ");
+
+  //Serial.print(accel_t_gyro.value.z_accel, DEC);
+     mySerial.print(accel_t_gyro.value.z_accel);
+
+  //Serial.println(F(""));
+    mySerial.print("\n");*/
+
+ 
+ 
+  // The temperature sensor is -40 to +85 degrees Celsius.
+  // It is a signed integer.
+  // According to the datasheet:
+  //   340 per degrees Celsius, -512 at 35 degrees.
+  // At 0 degrees: -512 - (340 * 35) = -12412
+ 
+  /*Serial.print(F("temperature: "));
+  dT = ( (double) accel_t_gyro.value.temperature + 12412.0) / 340.0;
+  Serial.print(dT, 3);
+  Serial.print(F(" degrees Celsius"));
+  Serial.println(F(""));*/
+ 
+ 
+  // Print the raw gyro values.
+ 
+  //Serial.print(F("gyro x,y,z : "));
+  /*mySerial.println("The Gyro X value from Thumb is : ");
+  mySerial.print(accel_t_gyro.value.x_gyro);
+      mySerial.print("\n");
+  //Serial.print(accel_t_gyro.value.x_gyro, DEC);
+  //Serial.print(F(", "));
+  //Serial.print(accel_t_gyro.value.y_gyro, DEC);
+    mySerial.println("The Gyro Y value from Thumb is : ");
+    mySerial.print(accel_t_gyro.value.y_gyro);
+        mySerial.print("\n");
+
+  //Serial.print(F(", "));
+  //Serial.print(accel_t_gyro.value.z_gyro, DEC);
+    mySerial.println("The Gyro Z value from Thumb is : ");
+    mySerial.print(accel_t_gyro.value.z_gyro);
+        mySerial.print("\n");*/
+        //mySerial.println("Thumb angle values");
+    float FS_SEL = 131;
+ 
+  float gyro_x = (accel_t_gyro.value.x_gyro - base_x_gyro[0])/FS_SEL;
+  float gyro_y = (accel_t_gyro.value.y_gyro - base_y_gyro[0])/FS_SEL;
+  float gyro_z = (accel_t_gyro.value.z_gyro - base_z_gyro[0])/FS_SEL;
+  
+  
+  // Get raw acceleration values
+  //float G_CONVERT = 16384;
+  float accel_x = accel_t_gyro.value.x_accel;
+  float accel_y = accel_t_gyro.value.y_accel;
+  float accel_z = accel_t_gyro.value.z_accel;
+  
+  // Get angle values from accelerometer
+  float RADIANS_TO_DEGREES = 180/3.14159;
+//  float accel_vector_length = sqrt(pow(accel_x,2) + pow(accel_y,2) + pow(accel_z,2));
+  float accel_angle_y = atan(-1*accel_x/sqrt(pow(accel_y,2) + pow(accel_z,2)))*RADIANS_TO_DEGREES;
+  float accel_angle_x = atan(accel_y/sqrt(pow(accel_x,2) + pow(accel_z,2)))*RADIANS_TO_DEGREES;
+
+  float accel_angle_z = 0;
+  
+  // Compute the (filtered) gyro angles
+  float dt =(t_now - get_last_time(0))/1000.0;
+  float gyro_angle_x = gyro_x*dt + get_last_x_angle(0);
+  float gyro_angle_y = gyro_y*dt + get_last_y_angle(0);
+  float gyro_angle_z = gyro_z*dt + get_last_z_angle(0);
+  
+  // Compute the drifting gyro angles
+  float unfiltered_gyro_angle_x = gyro_x*dt + get_last_gyro_x_angle(0);
+  float unfiltered_gyro_angle_y = gyro_y*dt + get_last_gyro_y_angle(0);
+  float unfiltered_gyro_angle_z = gyro_z*dt + get_last_gyro_z_angle(0);
+  
+  // Apply the complementary filter to figure out the change in angle - choice of alpha is
+  // estimated now.  Alpha depends on the sampling rate...
+  float alpha = 0.96;
+  float angle_x = alpha*gyro_angle_x + (1.0 - alpha)*accel_angle_x;
+  float angle_y = alpha*gyro_angle_y + (1.0 - alpha)*accel_angle_y;
+  float angle_z = gyro_angle_z;  //Accelerometer doesn't give z-angle
+  
+  // Update the saved data with the latest values
+  set_last_read_angle_data(t_now, angle_x, angle_y, angle_z, unfiltered_gyro_angle_x, unfiltered_gyro_angle_y, unfiltered_gyro_angle_z, 0);
+  
+  // Send the data to the serial port
+ /* mySerial.print(F("DEL:"));              //Delta T
+  mySerial.print(dt, DEC);
+  mySerial.print(F("#ACC:"));              //Accelerometer angle
+  mySerial.print(accel_angle_x, 2);
+  mySerial.print(F(","));
+  mySerial.print(accel_angle_y, 2);
+  mySerial.print(F(","));
+  mySerial.print(accel_angle_z, 2);
+  mySerial.print(F("#GYR:"));
+  Serial.print(unfiltered_gyro_angle_x, 2);        //Gyroscope angle
+  Serial.print(F(","));
+  Serial.print(unfiltered_gyro_angle_y, 2);
+  Serial.print(F(","));
+  Serial.print(unfiltered_gyro_angle_z, 2);*/
+  mySerial.println(F("Thumb Angles x y z "));             //Filtered angle
+  mySerial.print(angle_x, DEC);
+  mySerial.println(F(","));
+  mySerial.print(angle_y, DEC);
+  mySerial.println(F(","));
+  mySerial.print(angle_z, DEC);
+  mySerial.println(F(""));
+  
+  // Delay so we don't swamp the serial port
+ 
+         // nDevices++;
+          
+        }
+      else if (error==4)
+        {
+          Serial.print(F("Unknown error at address 0x"));
+          if (address<16)
+            Serial.print("0");
+          Serial.println(address,HEX);
+        }    
+    
+   
+}
+
+
+void mpunumber2()
+{
+    byte error, address;
+    address=105;
+    Wire.beginTransmission(address);
+      error = Wire.endTransmission();
+      
+      if (error == 0)
+        {
+          /*Serial.print("MPU number : ");
+          Serial.println(flag-5); 
+          Serial.print(F("I2C device found at address 0x"));
+          if (address<16)
+            Serial.print(F("0"));
+          Serial.print(address,HEX);
+          Serial.println(F("  !"));*/
+        
+  int error;
+  double dT;
+  accel_t_gyro_union accel_t_gyro;
+ 
+  error = read_gyro_accel_vals((uint8_t*) &accel_t_gyro);
+  unsigned long t_now = millis();
+  /*Serial.println(F(""));
+  Serial.println(F("MPU-6050"));*/
+ 
+  // Read the raw values.
+  // Read 14 bytes at once,
+  // containing acceleration, temperature and gyro.
+  // With the default settings of the MPU-6050,
+  // there is no filter enabled, and the values
+  // are not very stable.
+  //error = MPU6050_read (MPU6050_ACCEL_XOUT_H, (uint8_t *) &accel_t_gyro, sizeof(accel_t_gyro));
+ /* Serial.print(F("Read accel, temp and gyro, error = "));
+  Serial.println(error,DEC);*/
+ 
+ 
+  // Swap all high and low bytes.
+  // After this, the registers values are swapped,
+  // so the structure name like x_accel_l does no
+  // longer contain the lower byte.
+  /*uint8_t swap;
+  #define SWAP(x,y) swap = x; x = y; y = swap
+ 
+  SWAP (accel_t_gyro.reg.x_accel_h, accel_t_gyro.reg.x_accel_l);
+  SWAP (accel_t_gyro.reg.y_accel_h, accel_t_gyro.reg.y_accel_l);
+  SWAP (accel_t_gyro.reg.z_accel_h, accel_t_gyro.reg.z_accel_l);
+  SWAP (accel_t_gyro.reg.x_gyro_h, accel_t_gyro.reg.x_gyro_l);
+  SWAP (accel_t_gyro.reg.y_gyro_h, accel_t_gyro.reg.y_gyro_l);
+  SWAP (accel_t_gyro.reg.z_gyro_h, accel_t_gyro.reg.z_gyro_l);*/
+ 
+ 
+  // Print the raw acceleration values
+ 
+ // Serial.print(F("accel x,y,z: "));
+  /*mySerial.println("The Accl X value from Thumb is : ");
+  //Serial.print(accel_t_gyro.value.x_accel, DEC);
+  //Serial.print(F(", "));
+    mySerial.print(accel_t_gyro.value.x_accel);
+  mySerial.print("\n");
+    mySerial.println("The Accl Y value from Thumb is : ");
+//Serial.print(accel_t_gyro.value.y_accel, DEC);
+      mySerial.print(accel_t_gyro.value.y_accel);
+  mySerial.print("\n");
+
+ // Serial.print(F(", "));
+   mySerial.println("The Accl Z value from Thumb is : ");
+
+  //Serial.print(accel_t_gyro.value.z_accel, DEC);
+     mySerial.print(accel_t_gyro.value.z_accel);
+
+  //Serial.println(F(""));
+    mySerial.print("\n");*/
+
+ 
+ 
+  // The temperature sensor is -40 to +85 degrees Celsius.
+  // It is a signed integer.
+  // According to the datasheet:
+  //   340 per degrees Celsius, -512 at 35 degrees.
+  // At 0 degrees: -512 - (340 * 35) = -12412
+ 
+  /*Serial.print(F("temperature: "));
+  dT = ( (double) accel_t_gyro.value.temperature + 12412.0) / 340.0;
+  Serial.print(dT, 3);
+  Serial.print(F(" degrees Celsius"));
+  Serial.println(F(""));*/
+ 
+ 
+  // Print the raw gyro values.
+ 
+  //Serial.print(F("gyro x,y,z : "));
+  /*mySerial.println("The Gyro X value from Thumb is : ");
+  mySerial.print(accel_t_gyro.value.x_gyro);
+      mySerial.print("\n");
+  //Serial.print(accel_t_gyro.value.x_gyro, DEC);
+  //Serial.print(F(", "));
+  //Serial.print(accel_t_gyro.value.y_gyro, DEC);
+    mySerial.println("The Gyro Y value from Thumb is : ");
+    mySerial.print(accel_t_gyro.value.y_gyro);
+        mySerial.print("\n");
+
+  //Serial.print(F(", "));
+  //Serial.print(accel_t_gyro.value.z_gyro, DEC);
+    mySerial.println("The Gyro Z value from Thumb is : ");
+    mySerial.print(accel_t_gyro.value.z_gyro);
+        mySerial.print("\n");*/
+        //mySerial.println("Thumb angle values");
+    float FS_SEL = 131;
+ 
+  float gyro_x = (accel_t_gyro.value.x_gyro - base_x_gyro[1])/FS_SEL;
+  float gyro_y = (accel_t_gyro.value.y_gyro - base_y_gyro[1])/FS_SEL;
+  float gyro_z = (accel_t_gyro.value.z_gyro - base_z_gyro[1])/FS_SEL;
+  
+  
+  // Get raw acceleration values
+  //float G_CONVERT = 16384;
+  float accel_x = accel_t_gyro.value.x_accel;
+  float accel_y = accel_t_gyro.value.y_accel;
+  float accel_z = accel_t_gyro.value.z_accel;
+  
+  // Get angle values from accelerometer
+  float RADIANS_TO_DEGREES = 180/3.14159;
+//  float accel_vector_length = sqrt(pow(accel_x,2) + pow(accel_y,2) + pow(accel_z,2));
+  float accel_angle_y = atan(-1*accel_x/sqrt(pow(accel_y,2) + pow(accel_z,2)))*RADIANS_TO_DEGREES;
+  float accel_angle_x = atan(accel_y/sqrt(pow(accel_x,2) + pow(accel_z,2)))*RADIANS_TO_DEGREES;
+
+  float accel_angle_z = 0;
+  
+  // Compute the (filtered) gyro angles
+  float dt =(t_now - get_last_time(1))/1000.0;
+  float gyro_angle_x = gyro_x*dt + get_last_x_angle(1);
+  float gyro_angle_y = gyro_y*dt + get_last_y_angle(1);
+  float gyro_angle_z = gyro_z*dt + get_last_z_angle(1);
+  
+  // Compute the drifting gyro angles
+  float unfiltered_gyro_angle_x = gyro_x*dt + get_last_gyro_x_angle(1);
+  float unfiltered_gyro_angle_y = gyro_y*dt + get_last_gyro_y_angle(1);
+  float unfiltered_gyro_angle_z = gyro_z*dt + get_last_gyro_z_angle(1);
+  
+  // Apply the complementary filter to figure out the change in angle - choice of alpha is
+  // estimated now.  Alpha depends on the sampling rate...
+  float alpha = 0.96;
+  float angle_x = alpha*gyro_angle_x + (1.0 - alpha)*accel_angle_x;
+  float angle_y = alpha*gyro_angle_y + (1.0 - alpha)*accel_angle_y;
+  float angle_z = gyro_angle_z;  //Accelerometer doesn't give z-angle
+  
+  // Update the saved data with the latest values
+  set_last_read_angle_data(t_now, angle_x, angle_y, angle_z, unfiltered_gyro_angle_x, unfiltered_gyro_angle_y, unfiltered_gyro_angle_z, 1);
+  
+  // Send the data to the serial port
+ /* mySerial.print(F("DEL:"));              //Delta T
+  mySerial.print(dt, DEC);
+  mySerial.print(F("#ACC:"));              //Accelerometer angle
+  mySerial.print(accel_angle_x, 2);
+  mySerial.print(F(","));
+  mySerial.print(accel_angle_y, 2);
+  mySerial.print(F(","));
+  mySerial.print(accel_angle_z, 2);
+  mySerial.print(F("#GYR:"));
+  Serial.print(unfiltered_gyro_angle_x, 2);        //Gyroscope angle
+  Serial.print(F(","));
+  Serial.print(unfiltered_gyro_angle_y, 2);
+  Serial.print(F(","));
+  Serial.print(unfiltered_gyro_angle_z, 2);*/
+  mySerial.println(F("Index Finger Angles x y z "));             //Filtered angle
+  mySerial.print(angle_x, DEC);
+  mySerial.println(F(","));
+  mySerial.print(angle_y, DEC);
+  mySerial.println(F(","));
+  mySerial.print(angle_z, DEC);
+  mySerial.println(F(""));
+  
+  // Delay so we don't swamp the serial port
+  
+         // nDevices++;
+          
+        }
+      else if (error==4)
+        {
+          Serial.print(F("Unknown error at address 0x"));
+          if (address<16)
+            Serial.print("0");
+          Serial.println(address,HEX);
+        }    
+    
+   
+}
+
+void mpunumber3()
+{
+  byte error, address;
+    address=105;
+    Wire.beginTransmission(address);
+      error = Wire.endTransmission();
+      
+      if (error == 0)
+        {
+          /*Serial.print("MPU number : ");
+          Serial.println(flag-5); 
+          Serial.print(F("I2C device found at address 0x"));
+          if (address<16)
+            Serial.print(F("0"));
+          Serial.print(address,HEX);
+          Serial.println(F("  !"));*/
+        
+  int error;
+  double dT;
+  accel_t_gyro_union accel_t_gyro;
+ 
+  error = read_gyro_accel_vals((uint8_t*) &accel_t_gyro);
+  unsigned long t_now = millis();
+  /*Serial.println(F(""));
+  Serial.println(F("MPU-6050"));*/
+ 
+  // Read the raw values.
+  // Read 14 bytes at once,
+  // containing acceleration, temperature and gyro.
+  // With the default settings of the MPU-6050,
+  // there is no filter enabled, and the values
+  // are not very stable.
+  //error = MPU6050_read (MPU6050_ACCEL_XOUT_H, (uint8_t *) &accel_t_gyro, sizeof(accel_t_gyro));
+ /* Serial.print(F("Read accel, temp and gyro, error = "));
+  Serial.println(error,DEC);*/
+ 
+ 
+  // Swap all high and low bytes.
+  // After this, the registers values are swapped,
+  // so the structure name like x_accel_l does no
+  // longer contain the lower byte.
+  /*uint8_t swap;
+  #define SWAP(x,y) swap = x; x = y; y = swap
+ 
+  SWAP (accel_t_gyro.reg.x_accel_h, accel_t_gyro.reg.x_accel_l);
+  SWAP (accel_t_gyro.reg.y_accel_h, accel_t_gyro.reg.y_accel_l);
+  SWAP (accel_t_gyro.reg.z_accel_h, accel_t_gyro.reg.z_accel_l);
+  SWAP (accel_t_gyro.reg.x_gyro_h, accel_t_gyro.reg.x_gyro_l);
+  SWAP (accel_t_gyro.reg.y_gyro_h, accel_t_gyro.reg.y_gyro_l);
+  SWAP (accel_t_gyro.reg.z_gyro_h, accel_t_gyro.reg.z_gyro_l);*/
+ 
+ 
+  // Print the raw acceleration values
+ 
+ // Serial.print(F("accel x,y,z: "));
+  /*mySerial.println("The Accl X value from Thumb is : ");
+  //Serial.print(accel_t_gyro.value.x_accel, DEC);
+  //Serial.print(F(", "));
+    mySerial.print(accel_t_gyro.value.x_accel);
+  mySerial.print("\n");
+    mySerial.println("The Accl Y value from Thumb is : ");
+//Serial.print(accel_t_gyro.value.y_accel, DEC);
+      mySerial.print(accel_t_gyro.value.y_accel);
+  mySerial.print("\n");
+
+ // Serial.print(F(", "));
+   mySerial.println("The Accl Z value from Thumb is : ");
+
+  //Serial.print(accel_t_gyro.value.z_accel, DEC);
+     mySerial.print(accel_t_gyro.value.z_accel);
+
+  //Serial.println(F(""));
+    mySerial.print("\n");*/
+
+ 
+ 
+  // The temperature sensor is -40 to +85 degrees Celsius.
+  // It is a signed integer.
+  // According to the datasheet:
+  //   340 per degrees Celsius, -512 at 35 degrees.
+  // At 0 degrees: -512 - (340 * 35) = -12412
+ 
+  /*Serial.print(F("temperature: "));
+  dT = ( (double) accel_t_gyro.value.temperature + 12412.0) / 340.0;
+  Serial.print(dT, 3);
+  Serial.print(F(" degrees Celsius"));
+  Serial.println(F(""));*/
+ 
+ 
+  // Print the raw gyro values.
+ 
+  //Serial.print(F("gyro x,y,z : "));
+  /*mySerial.println("The Gyro X value from Thumb is : ");
+  mySerial.print(accel_t_gyro.value.x_gyro);
+      mySerial.print("\n");
+  //Serial.print(accel_t_gyro.value.x_gyro, DEC);
+  //Serial.print(F(", "));
+  //Serial.print(accel_t_gyro.value.y_gyro, DEC);
+    mySerial.println("The Gyro Y value from Thumb is : ");
+    mySerial.print(accel_t_gyro.value.y_gyro);
+        mySerial.print("\n");
+
+  //Serial.print(F(", "));
+  //Serial.print(accel_t_gyro.value.z_gyro, DEC);
+    mySerial.println("The Gyro Z value from Thumb is : ");
+    mySerial.print(accel_t_gyro.value.z_gyro);
+        mySerial.print("\n");*/
+        //mySerial.println(" angle values");
+    float FS_SEL = 131;
+ 
+  float gyro_x = (accel_t_gyro.value.x_gyro - base_x_gyro[2])/FS_SEL;
+  float gyro_y = (accel_t_gyro.value.y_gyro - base_y_gyro[2])/FS_SEL;
+  float gyro_z = (accel_t_gyro.value.z_gyro - base_z_gyro[2])/FS_SEL;
+  
+  
+  // Get raw acceleration values
+  //float G_CONVERT = 16384;
+  float accel_x = accel_t_gyro.value.x_accel;
+  float accel_y = accel_t_gyro.value.y_accel;
+  float accel_z = accel_t_gyro.value.z_accel;
+  
+  // Get angle values from accelerometer
+  float RADIANS_TO_DEGREES = 180/3.14159;
+//  float accel_vector_length = sqrt(pow(accel_x,2) + pow(accel_y,2) + pow(accel_z,2));
+  float accel_angle_y = atan(-1*accel_x/sqrt(pow(accel_y,2) + pow(accel_z,2)))*RADIANS_TO_DEGREES;
+  float accel_angle_x = atan(accel_y/sqrt(pow(accel_x,2) + pow(accel_z,2)))*RADIANS_TO_DEGREES;
+
+  float accel_angle_z = 0;
+  
+  // Compute the (filtered) gyro angles
+  float dt =(t_now - get_last_time(2))/1000.0;
+  float gyro_angle_x = gyro_x*dt + get_last_x_angle(2);
+  float gyro_angle_y = gyro_y*dt + get_last_y_angle(2);
+  float gyro_angle_z = gyro_z*dt + get_last_z_angle(2);
+  
+  // Compute the drifting gyro angles
+  float unfiltered_gyro_angle_x = gyro_x*dt + get_last_gyro_x_angle(2);
+  float unfiltered_gyro_angle_y = gyro_y*dt + get_last_gyro_y_angle(2);
+  float unfiltered_gyro_angle_z = gyro_z*dt + get_last_gyro_z_angle(2);
+  
+  // Apply the complementary filter to figure out the change in angle - choice of alpha is
+  // estimated now.  Alpha depends on the sampling rate...
+  float alpha = 0.96;
+  float angle_x = alpha*gyro_angle_x + (1.0 - alpha)*accel_angle_x;
+  float angle_y = alpha*gyro_angle_y + (1.0 - alpha)*accel_angle_y;
+  float angle_z = gyro_angle_z;  //Accelerometer doesn't give z-angle
+  
+  // Update the saved data with the latest values
+  set_last_read_angle_data(t_now, angle_x, angle_y, angle_z, unfiltered_gyro_angle_x, unfiltered_gyro_angle_y, unfiltered_gyro_angle_z, 2);
+  
+  // Send the data to the serial port
+ /* mySerial.print(F("DEL:"));              //Delta T
+  mySerial.print(dt, DEC);
+  mySerial.print(F("#ACC:"));              //Accelerometer angle
+  mySerial.print(accel_angle_x, 2);
+  mySerial.print(F(","));
+  mySerial.print(accel_angle_y, 2);
+  mySerial.print(F(","));
+  mySerial.print(accel_angle_z, 2);
+  mySerial.print(F("#GYR:"));
+  Serial.print(unfiltered_gyro_angle_x, 2);        //Gyroscope angle
+  Serial.print(F(","));
+  Serial.print(unfiltered_gyro_angle_y, 2);
+  Serial.print(F(","));
+  Serial.print(unfiltered_gyro_angle_z, 2);*/
+  mySerial.println(F("Middle Finger Angles x y z "));             //Filtered angle
+  mySerial.print(angle_x, DEC);
+  mySerial.println(F(","));
+  mySerial.print(angle_y, DEC);
+  mySerial.println(F(","));
+  mySerial.print(angle_z, DEC);
+  mySerial.println(F(""));
+  
+  // Delay so we don't swamp the serial port
+  
+         // nDevices++;
+          
+        }
+      else if (error==4)
+        {
+          Serial.print(F("Unknown error at address 0x"));
+          if (address<16)
+            Serial.print("0");
+          Serial.println(address,HEX);
+        }    
+    
+   
+}
+
+void mpunumber4()
+{
+  byte error, address;
+    address=105;
+    Wire.beginTransmission(address);
+      error = Wire.endTransmission();
+      
+      if (error == 0)
+        {
+          /*Serial.print("MPU number : ");
+          Serial.println(flag-5); 
+          Serial.print(F("I2C device found at address 0x"));
+          if (address<16)
+            Serial.print(F("0"));
+          Serial.print(address,HEX);
+          Serial.println(F("  !"));*/
+        
+  int error;
+  double dT;
+  accel_t_gyro_union accel_t_gyro;
+ 
+  error = read_gyro_accel_vals((uint8_t*) &accel_t_gyro);
+  unsigned long t_now = millis();
+  /*Serial.println(F(""));
+  Serial.println(F("MPU-6050"));*/
+ 
+  // Read the raw values.
+  // Read 14 bytes at once,
+  // containing acceleration, temperature and gyro.
+  // With the default settings of the MPU-6050,
+  // there is no filter enabled, and the values
+  // are not very stable.
+  //error = MPU6050_read (MPU6050_ACCEL_XOUT_H, (uint8_t *) &accel_t_gyro, sizeof(accel_t_gyro));
+ /* Serial.print(F("Read accel, temp and gyro, error = "));
+  Serial.println(error,DEC);*/
+ 
+ 
+  // Swap all high and low bytes.
+  // After this, the registers values are swapped,
+  // so the structure name like x_accel_l does no
+  // longer contain the lower byte.
+  /*uint8_t swap;
+  #define SWAP(x,y) swap = x; x = y; y = swap
+ 
+  SWAP (accel_t_gyro.reg.x_accel_h, accel_t_gyro.reg.x_accel_l);
+  SWAP (accel_t_gyro.reg.y_accel_h, accel_t_gyro.reg.y_accel_l);
+  SWAP (accel_t_gyro.reg.z_accel_h, accel_t_gyro.reg.z_accel_l);
+  SWAP (accel_t_gyro.reg.x_gyro_h, accel_t_gyro.reg.x_gyro_l);
+  SWAP (accel_t_gyro.reg.y_gyro_h, accel_t_gyro.reg.y_gyro_l);
+  SWAP (accel_t_gyro.reg.z_gyro_h, accel_t_gyro.reg.z_gyro_l);*/
+ 
+ 
+  // Print the raw acceleration values
+ 
+ // Serial.print(F("accel x,y,z: "));
+  /*mySerial.println("The Accl X value from Thumb is : ");
+  //Serial.print(accel_t_gyro.value.x_accel, DEC);
+  //Serial.print(F(", "));
+    mySerial.print(accel_t_gyro.value.x_accel);
+  mySerial.print("\n");
+    mySerial.println("The Accl Y value from Thumb is : ");
+//Serial.print(accel_t_gyro.value.y_accel, DEC);
+      mySerial.print(accel_t_gyro.value.y_accel);
+  mySerial.print("\n");
+
+ // Serial.print(F(", "));
+   mySerial.println("The Accl Z value from Thumb is : ");
+
+  //Serial.print(accel_t_gyro.value.z_accel, DEC);
+     mySerial.print(accel_t_gyro.value.z_accel);
+
+  //Serial.println(F(""));
+    mySerial.print("\n");*/
+
+ 
+ 
+  // The temperature sensor is -40 to +85 degrees Celsius.
+  // It is a signed integer.
+  // According to the datasheet:
+  //   340 per degrees Celsius, -512 at 35 degrees.
+  // At 0 degrees: -512 - (340 * 35) = -12412
+ 
+  /*Serial.print(F("temperature: "));
+  dT = ( (double) accel_t_gyro.value.temperature + 12412.0) / 340.0;
+  Serial.print(dT, 3);
+  Serial.print(F(" degrees Celsius"));
+  Serial.println(F(""));*/
+ 
+ 
+  // Print the raw gyro values.
+ 
+  //Serial.print(F("gyro x,y,z : "));
+  /*mySerial.println("The Gyro X value from Thumb is : ");
+  mySerial.print(accel_t_gyro.value.x_gyro);
+      mySerial.print("\n");
+  //Serial.print(accel_t_gyro.value.x_gyro, DEC);
+  //Serial.print(F(", "));
+  //Serial.print(accel_t_gyro.value.y_gyro, DEC);
+    mySerial.println("The Gyro Y value from Thumb is : ");
+    mySerial.print(accel_t_gyro.value.y_gyro);
+        mySerial.print("\n");
+
+  //Serial.print(F(", "));
+  //Serial.print(accel_t_gyro.value.z_gyro, DEC);
+    mySerial.println("The Gyro Z value from Thumb is : ");
+    mySerial.print(accel_t_gyro.value.z_gyro);
+        mySerial.print("\n");*/
+        //mySerial.println("Thumb angle values");
+    float FS_SEL = 131;
+ 
+  float gyro_x = (accel_t_gyro.value.x_gyro - base_x_gyro[3])/FS_SEL;
+  float gyro_y = (accel_t_gyro.value.y_gyro - base_y_gyro[3])/FS_SEL;
+  float gyro_z = (accel_t_gyro.value.z_gyro - base_z_gyro[3])/FS_SEL;
+  
+  
+  // Get raw acceleration values
+  //float G_CONVERT = 16384;
+  float accel_x = accel_t_gyro.value.x_accel;
+  float accel_y = accel_t_gyro.value.y_accel;
+  float accel_z = accel_t_gyro.value.z_accel;
+  
+  // Get angle values from accelerometer
+  float RADIANS_TO_DEGREES = 180/3.14159;
+//  float accel_vector_length = sqrt(pow(accel_x,2) + pow(accel_y,2) + pow(accel_z,2));
+  float accel_angle_y = atan(-1*accel_x/sqrt(pow(accel_y,2) + pow(accel_z,2)))*RADIANS_TO_DEGREES;
+  float accel_angle_x = atan(accel_y/sqrt(pow(accel_x,2) + pow(accel_z,2)))*RADIANS_TO_DEGREES;
+
+  float accel_angle_z = 0;
+  
+  // Compute the (filtered) gyro angles
+  float dt =(t_now - get_last_time(3))/1000.0;
+  float gyro_angle_x = gyro_x*dt + get_last_x_angle(3);
+  float gyro_angle_y = gyro_y*dt + get_last_y_angle(3);
+  float gyro_angle_z = gyro_z*dt + get_last_z_angle(3);
+  
+  // Compute the drifting gyro angles
+  float unfiltered_gyro_angle_x = gyro_x*dt + get_last_gyro_x_angle(3);
+  float unfiltered_gyro_angle_y = gyro_y*dt + get_last_gyro_y_angle(3);
+  float unfiltered_gyro_angle_z = gyro_z*dt + get_last_gyro_z_angle(3);
+  
+  // Apply the complementary filter to figure out the change in angle - choice of alpha is
+  // estimated now.  Alpha depends on the sampling rate...
+  float alpha = 0.96;
+  float angle_x = alpha*gyro_angle_x + (1.0 - alpha)*accel_angle_x;
+  float angle_y = alpha*gyro_angle_y + (1.0 - alpha)*accel_angle_y;
+  float angle_z = gyro_angle_z;  //Accelerometer doesn't give z-angle
+  
+  // Update the saved data with the latest values
+  set_last_read_angle_data(t_now, angle_x, angle_y, angle_z, unfiltered_gyro_angle_x, unfiltered_gyro_angle_y, unfiltered_gyro_angle_z, 3);
+  
+  // Send the data to the serial port
+ /* mySerial.print(F("DEL:"));              //Delta T
+  mySerial.print(dt, DEC);
+  mySerial.print(F("#ACC:"));              //Accelerometer angle
+  mySerial.print(accel_angle_x, 2);
+  mySerial.print(F(","));
+  mySerial.print(accel_angle_y, 2);
+  mySerial.print(F(","));
+  mySerial.print(accel_angle_z, 2);
+  mySerial.print(F("#GYR:"));
+  Serial.print(unfiltered_gyro_angle_x, 2);        //Gyroscope angle
+  Serial.print(F(","));
+  Serial.print(unfiltered_gyro_angle_y, 2);
+  Serial.print(F(","));
+  Serial.print(unfiltered_gyro_angle_z, 2);*/
+  mySerial.println(F("Ring Finger Angles x y z "));             //Filtered angle
+  mySerial.print(angle_x, DEC);
+  mySerial.println(F(","));
+  mySerial.print(angle_y, DEC);
+  mySerial.println(F(","));
+  mySerial.print(angle_z, DEC);
+  mySerial.println(F(""));
+  
+  // Delay so we don't swamp the serial port
+  
+         // nDevices++;
+          
+        }
+      else if (error==4)
+        {
+          Serial.print(F("Unknown error at address 0x"));
+          if (address<16)
+            Serial.print("0");
+          Serial.println(address,HEX);
+        }    
+    
+   
+}
+
+void mpunumber5()
+{
+  byte error, address;
+    address=105;
+    Wire.beginTransmission(address);
+      error = Wire.endTransmission();
+      
+      if (error == 0)
+        {
+          /*Serial.print("MPU number : ");
+          Serial.println(flag-5); 
+          Serial.print(F("I2C device found at address 0x"));
+          if (address<16)
+            Serial.print(F("0"));
+          Serial.print(address,HEX);
+          Serial.println(F("  !"));*/
+        
+  int error;
+  double dT;
+  accel_t_gyro_union accel_t_gyro;
+ 
+  error = read_gyro_accel_vals((uint8_t*) &accel_t_gyro);
+  unsigned long t_now = millis();
+  /*Serial.println(F(""));
+  Serial.println(F("MPU-6050"));*/
+ 
+  // Read the raw values.
+  // Read 14 bytes at once,
+  // containing acceleration, temperature and gyro.
+  // With the default settings of the MPU-6050,
+  // there is no filter enabled, and the values
+  // are not very stable.
+  //error = MPU6050_read (MPU6050_ACCEL_XOUT_H, (uint8_t *) &accel_t_gyro, sizeof(accel_t_gyro));
+ /* Serial.print(F("Read accel, temp and gyro, error = "));
+  Serial.println(error,DEC);*/
+ 
+ 
+  // Swap all high and low bytes.
+  // After this, the registers values are swapped,
+  // so the structure name like x_accel_l does no
+  // longer contain the lower byte.
+  /*uint8_t swap;
+  #define SWAP(x,y) swap = x; x = y; y = swap
+ 
+  SWAP (accel_t_gyro.reg.x_accel_h, accel_t_gyro.reg.x_accel_l);
+  SWAP (accel_t_gyro.reg.y_accel_h, accel_t_gyro.reg.y_accel_l);
+  SWAP (accel_t_gyro.reg.z_accel_h, accel_t_gyro.reg.z_accel_l);
+  SWAP (accel_t_gyro.reg.x_gyro_h, accel_t_gyro.reg.x_gyro_l);
+  SWAP (accel_t_gyro.reg.y_gyro_h, accel_t_gyro.reg.y_gyro_l);
+  SWAP (accel_t_gyro.reg.z_gyro_h, accel_t_gyro.reg.z_gyro_l);*/
+ 
+ 
+  // Print the raw acceleration values
+ 
+ // Serial.print(F("accel x,y,z: "));
+  /*mySerial.println("The Accl X value from Thumb is : ");
+  //Serial.print(accel_t_gyro.value.x_accel, DEC);
+  //Serial.print(F(", "));
+    mySerial.print(accel_t_gyro.value.x_accel);
+  mySerial.print("\n");
+    mySerial.println("The Accl Y value from Thumb is : ");
+//Serial.print(accel_t_gyro.value.y_accel, DEC);
+      mySerial.print(accel_t_gyro.value.y_accel);
+  mySerial.print("\n");
+
+ // Serial.print(F(", "));
+   mySerial.println("The Accl Z value from Thumb is : ");
+
+  //Serial.print(accel_t_gyro.value.z_accel, DEC);
+     mySerial.print(accel_t_gyro.value.z_accel);
+
+  //Serial.println(F(""));
+    mySerial.print("\n");*/
+
+ 
+ 
+  // The temperature sensor is -40 to +85 degrees Celsius.
+  // It is a signed integer.
+  // According to the datasheet:
+  //   340 per degrees Celsius, -512 at 35 degrees.
+  // At 0 degrees: -512 - (340 * 35) = -12412
+ 
+  /*Serial.print(F("temperature: "));
+  dT = ( (double) accel_t_gyro.value.temperature + 12412.0) / 340.0;
+  Serial.print(dT, 3);
+  Serial.print(F(" degrees Celsius"));
+  Serial.println(F(""));*/
+ 
+ 
+  // Print the raw gyro values.
+ 
+  //Serial.print(F("gyro x,y,z : "));
+  /*mySerial.println("The Gyro X value from Thumb is : ");
+  mySerial.print(accel_t_gyro.value.x_gyro);
+      mySerial.print("\n");
+  //Serial.print(accel_t_gyro.value.x_gyro, DEC);
+  //Serial.print(F(", "));
+  //Serial.print(accel_t_gyro.value.y_gyro, DEC);
+    mySerial.println("The Gyro Y value from Thumb is : ");
+    mySerial.print(accel_t_gyro.value.y_gyro);
+        mySerial.print("\n");
+
+  //Serial.print(F(", "));
+  //Serial.print(accel_t_gyro.value.z_gyro, DEC);
+    mySerial.println("The Gyro Z value from Thumb is : ");
+    mySerial.print(accel_t_gyro.value.z_gyro);
+        mySerial.print("\n");*/
+        //mySerial.println("Thumb angle values");
+    float FS_SEL = 131;
+ 
+  float gyro_x = (accel_t_gyro.value.x_gyro - base_x_gyro[4])/FS_SEL;
+  float gyro_y = (accel_t_gyro.value.y_gyro - base_y_gyro[4])/FS_SEL;
+  float gyro_z = (accel_t_gyro.value.z_gyro - base_z_gyro[4])/FS_SEL;
+  
+  
+  // Get raw acceleration values
+  //float G_CONVERT = 16384;
+  float accel_x = accel_t_gyro.value.x_accel;
+  float accel_y = accel_t_gyro.value.y_accel;
+  float accel_z = accel_t_gyro.value.z_accel;
+  
+  // Get angle values from accelerometer
+  float RADIANS_TO_DEGREES = 180/3.14159;
+//  float accel_vector_length = sqrt(pow(accel_x,2) + pow(accel_y,2) + pow(accel_z,2));
+  float accel_angle_y = atan(-1*accel_x/sqrt(pow(accel_y,2) + pow(accel_z,2)))*RADIANS_TO_DEGREES;
+  float accel_angle_x = atan(accel_y/sqrt(pow(accel_x,2) + pow(accel_z,2)))*RADIANS_TO_DEGREES;
+
+  float accel_angle_z = 0;
+  
+  // Compute the (filtered) gyro angles
+  float dt =(t_now - get_last_time(4))/1000.0;
+  float gyro_angle_x = gyro_x*dt + get_last_x_angle(4);
+  float gyro_angle_y = gyro_y*dt + get_last_y_angle(4);
+  float gyro_angle_z = gyro_z*dt + get_last_z_angle(4);
+  
+  // Compute the drifting gyro angles
+  float unfiltered_gyro_angle_x = gyro_x*dt + get_last_gyro_x_angle(4);
+  float unfiltered_gyro_angle_y = gyro_y*dt + get_last_gyro_y_angle(4);
+  float unfiltered_gyro_angle_z = gyro_z*dt + get_last_gyro_z_angle(4);
+  
+  // Apply the complementary filter to figure out the change in angle - choice of alpha is
+  // estimated now.  Alpha depends on the sampling rate...
+  float alpha = 0.96;
+  float angle_x = alpha*gyro_angle_x + (1.0 - alpha)*accel_angle_x;
+  float angle_y = alpha*gyro_angle_y + (1.0 - alpha)*accel_angle_y;
+  float angle_z = gyro_angle_z;  //Accelerometer doesn't give z-angle
+  
+  // Update the saved data with the latest values
+  set_last_read_angle_data(t_now, angle_x, angle_y, angle_z, unfiltered_gyro_angle_x, unfiltered_gyro_angle_y, unfiltered_gyro_angle_z, 4);
+  
+  // Send the data to the serial port
+ /* mySerial.print(F("DEL:"));              //Delta T
+  mySerial.print(dt, DEC);
+  mySerial.print(F("#ACC:"));              //Accelerometer angle
+  mySerial.print(accel_angle_x, 2);
+  mySerial.print(F(","));
+  mySerial.print(accel_angle_y, 2);
+  mySerial.print(F(","));
+  mySerial.print(accel_angle_z, 2);
+  mySerial.print(F("#GYR:"));
+  Serial.print(unfiltered_gyro_angle_x, 2);        //Gyroscope angle
+  Serial.print(F(","));
+  Serial.print(unfiltered_gyro_angle_y, 2);
+  Serial.print(F(","));
+  Serial.print(unfiltered_gyro_angle_z, 2);*/
+  mySerial.println(F("Pinky Finger Angles x y z "));             //Filtered angle
+  mySerial.print(angle_x, DEC);
+  mySerial.println(F(","));
+  mySerial.print(angle_y, DEC);
+  mySerial.println(F(","));
+  mySerial.print(angle_z, DEC);
+  mySerial.println(F(""));
+  
+  // Delay so we don't swamp the serial port
+  
+         // nDevices++;
+          
+        }
+      else if (error==4)
+        {
+          Serial.print(F("Unknown error at address 0x"));
+          if (address<16)
+            Serial.print("0");
+          Serial.println(address,HEX);
+        }    
+    
+   
+}
+
+
+void calibrate_sensor1()
+{
+  int                   num_readings = 10;
+  float                 x_accel = 0;
+  float                 y_accel = 0;
+  float                 z_accel = 0;
+  float                 x_gyro = 0;
+  float                 y_gyro = 0;
+  float                 z_gyro = 0;
+  accel_t_gyro_union    accel_t_gyro;
+
+for(int j=7;j<=10;j++)
+      {
+        
+        pinMode(j,OUTPUT);
+        digitalWrite(j,LOW);
+      
+      }  
+  pinMode(6,OUTPUT);
+        digitalWrite(6,HIGH);
+  //Serial.println("Starting Calibration");
+
+  // Discard the first set of values read from the IMU
+  read_gyro_accel_vals((uint8_t *) &accel_t_gyro);
+  
+  // Read and average the raw values from the IMU
+  for (int i = 0; i < num_readings; i++) {
+    read_gyro_accel_vals((uint8_t *) &accel_t_gyro);
+    x_accel += accel_t_gyro.value.x_accel;
+    y_accel += accel_t_gyro.value.y_accel;
+    z_accel += accel_t_gyro.value.z_accel;
+    x_gyro += accel_t_gyro.value.x_gyro;
+    y_gyro += accel_t_gyro.value.y_gyro;
+    z_gyro += accel_t_gyro.value.z_gyro;
+    delay(100);
+  }
+  x_accel /= num_readings;
+  y_accel /= num_readings;
+  z_accel /= num_readings;
+  x_gyro /= num_readings;
+  y_gyro /= num_readings;
+  z_gyro /= num_readings;
+  
+  // Store the raw calibration values globally
+  base_x_accel[0] = x_accel;
+  base_y_accel[0] = y_accel;
+  base_z_accel[0] = z_accel;
+  base_x_gyro[0] = x_gyro;
+  base_y_gyro[0] = y_gyro;
+  base_z_gyro[0] = z_gyro;
+
+    
+
+}
+void calibrate_sensor2()
+{
+  int                   num_readings = 10;
+  float                 x_accel = 0;
+  float                 y_accel = 0;
+  float                 z_accel = 0;
+  float                 x_gyro = 0;
+  float                 y_gyro = 0;
+  float                 z_gyro = 0;
+  accel_t_gyro_union    accel_t_gyro;
+
+for(int j=6;j<=10;j++)
+      {
+        
+        pinMode(j,OUTPUT);
+        digitalWrite(j,LOW);
+      
+      }  
+  pinMode(7,OUTPUT);
+        digitalWrite(7,HIGH);
+  //Serial.println("Starting Calibration");
+
+  // Discard the first set of values read from the IMU
+  read_gyro_accel_vals((uint8_t *) &accel_t_gyro);
+  
+  // Read and average the raw values from the IMU
+  for (int i = 0; i < num_readings; i++) {
+    read_gyro_accel_vals((uint8_t *) &accel_t_gyro);
+    x_accel += accel_t_gyro.value.x_accel;
+    y_accel += accel_t_gyro.value.y_accel;
+    z_accel += accel_t_gyro.value.z_accel;
+    x_gyro += accel_t_gyro.value.x_gyro;
+    y_gyro += accel_t_gyro.value.y_gyro;
+    z_gyro += accel_t_gyro.value.z_gyro;
+    delay(100);
+  }
+  x_accel /= num_readings;
+  y_accel /= num_readings;
+  z_accel /= num_readings;
+  x_gyro /= num_readings;
+  y_gyro /= num_readings;
+  z_gyro /= num_readings;
+  
+  // Store the raw calibration values globally
+  base_x_accel[1] = x_accel;
+  base_y_accel[1] = y_accel;
+  base_z_accel[1] = z_accel;
+  base_x_gyro[1] = x_gyro;
+  base_y_gyro[1] = y_gyro;
+  base_z_gyro[1] = z_gyro;
+}
+void calibrate_sensor3()
+{
+    int                   num_readings = 10;
+  float                 x_accel = 0;
+  float                 y_accel = 0;
+  float                 z_accel = 0;
+  float                 x_gyro = 0;
+  float                 y_gyro = 0;
+  float                 z_gyro = 0;
+  accel_t_gyro_union    accel_t_gyro;
+
+for(int j=6;j<=10;j++)
+      {
+        
+        pinMode(j,OUTPUT);
+        digitalWrite(j,LOW);
+      
+      }  
+  pinMode(8,OUTPUT);
+        digitalWrite(8,HIGH);
+  //Serial.println("Starting Calibration");
+
+  // Discard the first set of values read from the IMU
+  read_gyro_accel_vals((uint8_t *) &accel_t_gyro);
+  
+  // Read and average the raw values from the IMU
+  for (int i = 0; i < num_readings; i++) {
+    read_gyro_accel_vals((uint8_t *) &accel_t_gyro);
+    x_accel += accel_t_gyro.value.x_accel;
+    y_accel += accel_t_gyro.value.y_accel;
+    z_accel += accel_t_gyro.value.z_accel;
+    x_gyro += accel_t_gyro.value.x_gyro;
+    y_gyro += accel_t_gyro.value.y_gyro;
+    z_gyro += accel_t_gyro.value.z_gyro;
+    delay(100);
+  }
+  x_accel /= num_readings;
+  y_accel /= num_readings;
+  z_accel /= num_readings;
+  x_gyro /= num_readings;
+  y_gyro /= num_readings;
+  z_gyro /= num_readings;
+  
+  // Store the raw calibration values globally
+  base_x_accel[2] = x_accel;
+  base_y_accel[2] = y_accel;
+  base_z_accel[2] = z_accel;
+  base_x_gyro[2] = x_gyro;
+  base_y_gyro[2] = y_gyro;
+  base_z_gyro[2] = z_gyro;
+}
+void calibrate_sensor4()
+{
+    int                   num_readings = 10;
+  float                 x_accel = 0;
+  float                 y_accel = 0;
+  float                 z_accel = 0;
+  float                 x_gyro = 0;
+  float                 y_gyro = 0;
+  float                 z_gyro = 0;
+  accel_t_gyro_union    accel_t_gyro;
+
+for(int j=6;j<=10;j++)
+      {
+        
+        pinMode(j,OUTPUT);
+        digitalWrite(j,LOW);
+      
+      }  
+  pinMode(9,OUTPUT);
+        digitalWrite(9,HIGH);
+  //Serial.println("Starting Calibration");
+
+  // Discard the first set of values read from the IMU
+  read_gyro_accel_vals((uint8_t *) &accel_t_gyro);
+  
+  // Read and average the raw values from the IMU
+  for (int i = 0; i < num_readings; i++) {
+    read_gyro_accel_vals((uint8_t *) &accel_t_gyro);
+    x_accel += accel_t_gyro.value.x_accel;
+    y_accel += accel_t_gyro.value.y_accel;
+    z_accel += accel_t_gyro.value.z_accel;
+    x_gyro += accel_t_gyro.value.x_gyro;
+    y_gyro += accel_t_gyro.value.y_gyro;
+    z_gyro += accel_t_gyro.value.z_gyro;
+    delay(100);
+  }
+  x_accel /= num_readings;
+  y_accel /= num_readings;
+  z_accel /= num_readings;
+  x_gyro /= num_readings;
+  y_gyro /= num_readings;
+  z_gyro /= num_readings;
+  
+  // Store the raw calibration values globally
+  base_x_accel[3] = x_accel;
+  base_y_accel[3] = y_accel;
+  base_z_accel[3] = z_accel;
+  base_x_gyro[3] = x_gyro;
+  base_y_gyro[3] = y_gyro;
+  base_z_gyro[3] = z_gyro;
+}
+void calibrate_sensor5()
+{
+    int                   num_readings = 10;
+  float                 x_accel = 0;
+  float                 y_accel = 0;
+  float                 z_accel = 0;
+  float                 x_gyro = 0;
+  float                 y_gyro = 0;
+  float                 z_gyro = 0;
+  accel_t_gyro_union    accel_t_gyro;
+
+for(int j=6;j<=9;j++)
+      {
+        
+        pinMode(j,OUTPUT);
+        digitalWrite(j,LOW);
+      
+      }  
+  pinMode(10,OUTPUT);
+        digitalWrite(10,HIGH);
+  //Serial.println("Starting Calibration");
+
+  // Discard the first set of values read from the IMU
+  read_gyro_accel_vals((uint8_t *) &accel_t_gyro);
+  
+  // Read and average the raw values from the IMU
+  for (int i = 0; i < num_readings; i++) {
+    read_gyro_accel_vals((uint8_t *) &accel_t_gyro);
+    x_accel += accel_t_gyro.value.x_accel;
+    y_accel += accel_t_gyro.value.y_accel;
+    z_accel += accel_t_gyro.value.z_accel;
+    x_gyro += accel_t_gyro.value.x_gyro;
+    y_gyro += accel_t_gyro.value.y_gyro;
+    z_gyro += accel_t_gyro.value.z_gyro;
+    delay(100);
+  }
+  x_accel /= num_readings;
+  y_accel /= num_readings;
+  z_accel /= num_readings;
+  x_gyro /= num_readings;
+  y_gyro /= num_readings;
+  z_gyro /= num_readings;
+  
+  // Store the raw calibration values globally
+  base_x_accel[4] = x_accel;
+  base_y_accel[4] = y_accel;
+  base_z_accel[4] = z_accel;
+  base_x_gyro[4] = x_gyro;
+  base_y_gyro[4] = y_gyro;
+  base_z_gyro[4] = z_gyro;
+}
+
 
