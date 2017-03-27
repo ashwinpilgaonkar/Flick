@@ -6,7 +6,7 @@ def mail(TO, SUB, CONTENT):
     print("smtp set")
     server.starttls()
     print("start ttls")
-    server.login(From, "9825132939")
+    server.login(From, "PASSWORD")
     print("login complete")
 
     server.sendmail(From, TO, CONTENT)
