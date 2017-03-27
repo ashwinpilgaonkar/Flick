@@ -30,4 +30,4 @@ def retrieveNews(query):
     t.start()
     return result
 
-#retrieveNews("America hate crime")
+#retrieveNews("Narendra Modi")
