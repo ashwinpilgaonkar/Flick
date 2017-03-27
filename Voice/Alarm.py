@@ -1,7 +1,8 @@
 import os
 import time
+from Voice.GoogleTTS import speak
 
-def setReminder(hours, minutes): #Put Threading!!
+def setReminder(hours, minutes, Reminder): #Put Threading!!
     not_executed = 1
     while (not_executed):
         dt = list(time.localtime())
@@ -11,6 +12,8 @@ def setReminder(hours, minutes): #Put Threading!!
         print(hour, " ", minute)
         if hour == hours and minute == minutes:
             os.system("mpg321 Glass.mp3")
-            not_executed = 0
+            speak("Sir, you have " + Reminder)
             print("Reminder executed!")
             break
+
+setReminder(17,4, "Meeting")
