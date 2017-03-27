@@ -11,3 +11,5 @@ def speak(text):
         tts = gTTS(text="Sorry I do not get what you say!", lang='en')
     tts.save("IrisTemp.mp3")
     os.system("mpg321 IrisTemp.mp3")
+
+#speak("Hello how are you?")
