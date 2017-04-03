@@ -95,3 +95,5 @@ GoogleSTTJson
 *.xml
 .idea
 *.mp3
+
+Voice/IrisTemp.mp3
