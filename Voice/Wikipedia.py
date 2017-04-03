@@ -29,4 +29,4 @@ def wikiSearch(text):
 # u'1790 United States Census'
 
 #wikipedia.set_lang("fr")
-wikiSearch("Thomas edison")
+#wikiSearch("Thomas edison")

@@ -33,4 +33,4 @@ def bluetoothRight():
     bluetooth.close()
     print("closed BLU right hand!")
 
-bluetoothRight()
+#bluetoothRight()
