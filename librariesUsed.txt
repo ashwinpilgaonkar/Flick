@@ -6,3 +6,5 @@ pyautogui
     Mac OS: pip install pyobjc-core
             pip install pyobjc
     Linux:  pip install python3-Xlib
+
+mpg321: sudo apt-get install mpg321
