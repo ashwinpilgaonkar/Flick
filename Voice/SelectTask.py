@@ -7,16 +7,16 @@ from Voice.SpeechRecognition import listen
 import time
 from Voice.Alarm import setReminder
 import math
+from scipy import spatial
 
 
-
-Category = [{ "verbs": ["Search","Find","browse"], "nouns" : []},
-            {"verbs":["Scroll","move up","move down"], "nouns" : ["screen","scroll bar"]},
-            {"verbs":["Type","Enter","write"], "nouns" : []},
-            {"verbs":["Play","hear","sing"], "nouns" : []},
-            {"verbs":["Read","speak","dictate","say"], "nouns" : ["news","document"]},
-            {"verbs":["Remind","set"], "nouns" : ["alarm","reminder","time"]},
-            {"verbs":["Send","forward","write","mail"], "nouns" : ["mail","document"]}]
+Category = [{"verbs": ["Search","Find","browse"],  "nouns":[]},
+            {"verbs":["Scroll","up","down", "move"],    "nouns":["screen","scroll", "bar"]},
+            {"verbs":["Type","Enter","write"],  "nouns":[]},
+            {"verbs":["Play","hear","sing"],    "nouns":[]},
+            {"verbs":["Read","speak","dictate","say"],  "nouns":["news","document"]},
+            {"verbs":["Remind","set"],  "nouns":["alarm","reminder","time"]},
+            {"verbs":["Send","forward","write","mail"], "nouns":["mail","document"]}]
 
 def GetNoun(blob):
     noun = []
@@ -32,18 +32,60 @@ def GetVerbs(blob):
             verb.append(word.lemmatize())
     return verb
 
-#print(words.tags)
-#GetNoun(words)
-#GetVerbs(words)
-
 def SimilarityCheck(eachWord1,eachWord2):
-    syns1 = wordnet.synsets(eachWord1)
-    syns2 = wordnet.synsets(eachWord2)
-    w1 = wordnet.synset(syns1[0].name())
-    w2 = wordnet.synset(syns2[0].name())
-    return w1.wup_similarity(w2)
+    try:
+        syns1 = wordnet.synsets(eachWord1)
+        syns2 = wordnet.synsets(eachWord2)
+        # print("Syns 1: ",eachWord1, syns1, )
+        # print("Syns 2: ",eachWord2, syns2)
+        w1 = wordnet.synset(syns1[0].name())
+        w2 = wordnet.synset(syns2[0].name())
+        result = w1.wup_similarity(w2)
+        if result is None:
+            return 0
+        else:
+            return result
+    except:
+        return 0
 
+def TaskSelection(text):
+    blob = TextBlob(text)
+    verb = GetVerbs(blob)  # getting verbs in a list
+    noun = GetNoun(blob)
+    print(verb, noun)
+    sim_result = [0,0,0,0,0,0,0]
+    noun_result = [0,0,0,0,0,0,0]
+    count = 0
 
+    #print("Verbs: ")
+    for eachQueryVerb in verb:
+        count = 0
+        for eachItem in Category:
+            for eachVerb in eachItem["verbs"]:
+                #print(count, eachQueryVerb, eachVerb)
+                simWord = SimilarityCheck(eachQueryVerb, eachVerb)
+                if sim_result[count] < simWord: sim_result[count] = simWord
+                #sim_result[count] +=  SimilarityCheck(eachQueryVerb, eachVerb)
+                #if len(eachItem["verbs"]) != 0: sim_result[count] /= len(eachItem["verbs"])
+            count += 1
+
+    #print("Nouns: ")
+    for eachQueryNoun in noun:
+        count = 0
+        for eachItem in Category:
+            for eachNoun in eachItem["nouns"]:
+                #print(count, eachQueryNoun, eachNoun)
+                simWord = SimilarityCheck(eachQueryNoun, eachNoun)
+                if sim_result[count] < simWord: sim_result[count] = simWord
+                #noun_result[count] +=  SimilarityCheck(eachQueryNoun, eachNoun)
+            if len(eachItem["nouns"]) != 0: noun_result[count] /= len(eachItem["nouns"])
+            count += 1
+
+    print(sim_result, noun_result)
+
+TaskSelection("Can you Search how to write quick sort algorithm")
+
+'''
 def TaskSelection(text):
     blob = TextBlob(text)
     verb = GetVerbs(blob) # getting verbs in a list
@@ -76,7 +118,7 @@ def TaskSelection(text):
 
     #print(result_similarity)
 
-TaskSelection("Set an alarm at 8")
+TaskSelection("Set an alarm at 8")'''
     #print(similar_param)
     #print(similar_param.index(max(similar_param)))
 
