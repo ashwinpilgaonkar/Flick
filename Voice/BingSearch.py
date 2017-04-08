@@ -42,4 +42,4 @@ def bingSearch(queryText):
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
 
 
-#bingSearch("Hyperloop")
+#bingSearch("")
