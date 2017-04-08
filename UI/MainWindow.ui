@@ -101,7 +101,7 @@
          <rect>
           <x>562</x>
           <y>60</y>
-          <width>191</width>
+          <width>193</width>
           <height>20</height>
          </rect>
         </property>
@@ -226,7 +226,7 @@
          <rect>
           <x>610</x>
           <y>260</y>
-          <width>47</width>
+          <width>201</width>
           <height>13</height>
          </rect>
         </property>
@@ -237,7 +237,7 @@
        <widget class="QLabel" name="label_10">
         <property name="geometry">
          <rect>
-          <x>180</x>
+          <x>190</x>
           <y>0</y>
           <width>181</width>
           <height>41</height>
@@ -271,6 +271,23 @@
           <string notr="true">1</string>
          </property>
         </column>
+       </widget>
+       <widget class="QCommandLinkButton" name="DeleteButton">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>300</y>
+          <width>91</width>
+          <height>41</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Delete</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>C:/Users/Ashwin Pilgaonkar/Desktop/delete-xxl.png</normaloff>C:/Users/Ashwin Pilgaonkar/Desktop/delete-xxl.png</iconset>
+        </property>
        </widget>
       </widget>
       <widget class="QWidget" name="TabVA">
