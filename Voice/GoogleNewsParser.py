@@ -1,5 +1,6 @@
 import codecs
 import json
+import webbrowser
 
 from Voice import gnp
 import threading
@@ -17,6 +18,7 @@ def retrieveNews(query):
         content = news["stories"][0]['content_snippet'].decode("utf-8")
 
         result =  content + ". " + "News was brought to you by " + source + ". " + ". That's all for the news."
+
     except:
         result = "Sorry I did not get any results!"
     #print(news["stories"][0])
@@ -28,6 +30,10 @@ def retrieveNews(query):
     #print(news["stories"][0]["content"])
     t = threading.Thread(target=speak, args=(result,))
     t.start()
+    try:
+        webbrowser.open_new(link)
+    except:
+        pass
     return result
 
 #retrieveNews("Narendra Modi")
