@@ -99,7 +99,11 @@ def TaskSelection(text):
         print("Second Noun", indexNounSecondMax, valueNounSecond)
 
         if valueVerbFirst - valueVerbSecond <= LowConfidence:
-            switchTaskAtLowConfidence(indexVerbFirstMax)
+            learningFunc(verb, noun)
+            '''switchTaskAtLowConfidence(indexVerbFirstMax)
+            speak(" or ")
+            switchTaskAtLowConfidence(indexVerbSecondMax)
+
             feedbackText, listenFlag = listen()
             if listenFlag != 1:
                 sentenceBlob = TextBlob(feedbackText)
@@ -128,10 +132,58 @@ def TaskSelection(text):
                             switchExecuteTask(indexVerbSecondMax, text)
                     else:
                         speak("Retry, and be specific!")
-                        return
+                        return'''
         else:
             switchExecuteTask(indexVerbFirstMax, text)
 
+def learningFunc(verb, noun):
+    speak("Learning mode enabled. Answer in yes or no.")
+    for indexOfeachCategory in range(7):
+        switchTaskAtLowConfidence(indexOfeachCategory)
+        result_text, flag = listen()
+        if flag is 1:
+            speak("Learning mode disabled. I could not understand what you say.")
+            return
+        elif "yes" == result_text or "Yes" == result_text or "yess" == result_text:
+            count = 0
+            checkVerbFlag = False
+            checkNounFlag = False
+            for eachQueryVerb in verb:
+                for eachItem in Category:
+                    checkVerbFlag = checkVerbList(count, eachQueryVerb)
+                    if checkVerbFlag is True:
+                        break
+                    count += 1
+                if checkVerbFlag is False:
+                    Category[count]["verbs"].append(eachQueryVerb)
+
+            count = 0
+            for eachQueryNoun in noun:
+                for eachItem in Category:
+                    checkNounFlag = checkNounFlag(count, eachQueryNoun)
+                    if checkNounFlag is True:
+                        break
+                    count += 1
+                if checkNounFlag is False:
+                    Category[count]["nouns"].append(eachQueryNoun)
+            break
+
+        else: speak(" or ")
+
+def checkVerbList(indexOfeachCategory, eachVerb):
+    verbFlag = False
+    if eachVerb in Category[indexOfeachCategory]["verbs"]:
+        verbFlag = True
+        Category[indexOfeachCategory]["verbs"].remove(eachVerb)
+
+    return verbFlag
+
+def checkNounList(indexOfeachCategory, eachNoun):
+    nounFlag = False
+    if eachNoun in Category[indexOfeachCategory]["nouns"]:
+        nounFlag = True
+        Category[indexOfeachCategory]["nouns"].remove(eachNoun)
+    return nounFlag
 
 def SimilarityComparison(indexOfCategory, verbs, nouns):
     verb_result = 0.0
