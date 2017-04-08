@@ -61,37 +61,18 @@ def TaskSelection(text):
     avgNoun_result = [0,0,0,0,0,0,0]
     sim_result = [0,0,0,0,0,0,0]
     noun_result = [0,0,0,0,0,0,0]
-    Verb_Weightage = 1
 
     #print("Verbs: ")
     if len(verb) == 0:
         speak("Iris could not get you. Please speak correctly.")
         return
     else:
-        for eachQueryVerb in verb:
-            count = 0
-            for eachItem in Category:
-                for eachVerb in eachItem["verbs"]:
-                    # print(count, eachQueryVerb, eachVerb)
-                    simWord = SimilarityCheck(eachQueryVerb, eachVerb)
-                    if sim_result[count] < simWord: sim_result[count] = simWord * Verb_Weightage
-                    avgVerb_result[count] += SimilarityCheck(eachQueryVerb, eachVerb) * Verb_Weightage
-                    if len(eachItem["verbs"]) != 0: avgVerb_result[count] /= len(eachItem["verbs"])
-                count += 1
-            Verb_Weightage = Verb_Weightage * (60 / 100)
-        # print("Nouns: ")
-        Noun_Weightage = 1
-        for eachQueryNoun in noun:
-            count = 0
-            for eachItem in Category:
-                for eachNoun in eachItem["nouns"]:
-                    # print(count, eachQueryNoun, eachNoun)
-                    simWord = SimilarityCheck(eachQueryNoun, eachNoun)
-                    if sim_result[count] < simWord: sim_result[count] = simWord * Noun_Weightage
-                    avgNoun_result[count] += SimilarityCheck(eachQueryNoun, eachNoun) * Noun_Weightage
-                if len(eachItem["nouns"]) != 0: avgNoun_result[count] /= len(eachItem["nouns"])
-                count += 1
-            Noun_Weightage = Noun_Weightage * (60 / 100)
+        count = 0
+        for eachItem in Category:
+            sim_result[count], noun_result[count] = SimilarityComparison(count, verb, noun)
+            count += 1
+
+        print(sim_result, noun_result)
 
         # print(sim_result, noun_result)
         indexVerbFirstMax = sim_result.index(max(sim_result))
@@ -118,23 +99,58 @@ def TaskSelection(text):
         print("Second Noun", indexNounSecondMax, valueNounSecond)
 
         if valueVerbFirst - valueVerbSecond <= LowConfidence:
-            print()
             switchTaskAtLowConfidence(indexVerbFirstMax)
             feedbackText, listenFlag = listen()
             if listenFlag != 1:
-                sentence = TextBlob(feedbackText)
+                sentenceBlob = TextBlob(feedbackText)
                 flag = 0
 
-                for eachItem in sentence:
+                for eachItem in sentenceBlob.tags:
                     if "yes" == eachItem[0] or "Yes" == eachItem[0] or "yess" == eachItem[0]:
                         flag = 1
+                        print("First one selected")
                         switchExecuteTask(indexVerbFirstMax, text)
                         break
 
-                if flag == 0:
-                    switchExecuteTask(indexVerbSecondMax, text)
+#Feed Back Similarity Check
+
+                if flag is 0:
+                    feedbackVerb = GetVerbs(sentenceBlob)
+                    feedbackNoun = GetNoun(sentenceBlob)
+
+                    if len(feedbackVerb) != 0:
+                        feedback_verb1_result, feedback_noun1_result = SimilarityComparison(indexVerbFirstMax, feedbackVerb, feedbackNoun)
+                        feedback_verb2_result, feedback_noun2_result = SimilarityComparison(indexVerbSecondMax, feedbackVerb, feedbackNoun)
+
+                        if feedback_verb1_result > feedback_verb2_result:
+                            switchExecuteTask(indexVerbFirstMax, text)
+                        else:
+                            switchExecuteTask(indexVerbSecondMax, text)
+                    else:
+                        speak("Retry, and be specific!")
+                        return
         else:
             switchExecuteTask(indexVerbFirstMax, text)
+
+
+def SimilarityComparison(indexOfCategory, verbs, nouns):
+    verb_result = 0.0
+    noun_result = 0.0
+    Verb_Weightage = 1
+    Noun_Weightage = 1
+    for eachQueryVerb in verbs:
+        for eachVerb in Category[indexOfCategory]["verbs"]:
+            sim_word = SimilarityCheck(eachVerb, eachQueryVerb)
+            if verb_result < sim_word: verb_result = sim_word * Verb_Weightage
+        Verb_Weightage = Verb_Weightage * (60 / 100)
+
+    for eachQueryNoun in nouns:
+        for eachNoun in Category[indexOfCategory]["verbs"]:
+            sim_word = SimilarityCheck(eachNoun, eachQueryNoun)
+            if noun_result < sim_word: noun_result = sim_word * Noun_Weightage
+        Noun_Weightage = Noun_Weightage * (60 / 100)
+
+    return verb_result, noun_result
 
 
 def switchExecuteTask(x, text):
@@ -157,6 +173,9 @@ def switchTaskAtLowConfidence(x):
     elif x == 5: speak("Do you want to set reminder ?")
     elif x == 6: speak("Do you want to send email ?")
     else: speak("I am sorry I miscalculated something. Can you please speak again ?")
+
+TaskSelection("I want to hear peacful music")
+
 
 def Askwords(blob):
    # print(blob.words)
