@@ -5,7 +5,9 @@ import UI.MainWindow
 import Gesture.Database
 import Gesture.HIDEmulation
 from multiprocessing.pool import ThreadPool
+import threading
 import Bluetooth.Bluetooth
+from Voice.SelectTask import TaskSelection
 
 class MainWindow(QMainWindow, UI.MainWindow.Ui_MainWindow, QTableWidget):
 
@@ -99,8 +101,13 @@ class MainWindow(QMainWindow, UI.MainWindow.Ui_MainWindow, QTableWidget):
         self.VoiceLabel.setText("Listening...")
         pool = ThreadPool(processes=1)
         async_result = pool.apply_async(listen)
-        result_text = async_result.get()
+        result_text, flag = async_result.get()
         self.VoiceLabel.setText(result_text)
+        if flag != 1:
+            #TaskSelection(result_text)
+            thread = threading.Thread(target=TaskSelection, args=(result_text,))
+            thread.start()
+
 
 def main():
     app = QApplication(sys.argv)
