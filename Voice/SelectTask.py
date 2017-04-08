@@ -1,22 +1,26 @@
 from textblob import TextBlob
 from textblob import Word
-from Voice.Wikipedia import wikiSearch
 from textblob.wordnet import wordnet
 import os
-from Voice.SpeechRecognition import listen
 import time
 from Voice.Alarm import setReminder
-import math
-from scipy import spatial
+from Voice.Wikipedia import wikiSearch
+from Voice.SpeechRecognition import listen
+from Voice.GoogleTTS import speak
+from Voice.BingSearch import bingSearch
+from Voice.Youtube import playYouTube
+from Voice.GoogleNewsParser import retrieveNews
+from Voice.Alarm import setReminder
 
-
-Category = [{"verbs": ["Search","Find","browse"],  "nouns":[]},
+Category = [{"verbs": ["Search","Find","browse","open"],  "nouns":[]},
             {"verbs":["Scroll","up","down", "move"],    "nouns":["screen","scroll", "bar"]},
             {"verbs":["Type","Enter","write"],  "nouns":[]},
             {"verbs":["Play","hear","sing"],    "nouns":[]},
-            {"verbs":["Read","speak","dictate","say"],  "nouns":["news","document"]},
+            {"verbs":["Read","speak","dictate","say", "tell"],  "nouns":["news","document, headlines"]},
             {"verbs":["Remind","set"],  "nouns":["alarm","reminder","time"]},
-            {"verbs":["Send","forward","write","mail"], "nouns":["mail","document"]}]
+            {"verbs":["Send","forward","mail"], "nouns":["mail","document"]}]
+
+LowConfidence = 0.1
 
 def GetNoun(blob):
     noun = []
@@ -53,74 +57,106 @@ def TaskSelection(text):
     verb = GetVerbs(blob)  # getting verbs in a list
     noun = GetNoun(blob)
     print(verb, noun)
+    avgVerb_result = [0,0,0,0,0,0,0]
+    avgNoun_result = [0,0,0,0,0,0,0]
     sim_result = [0,0,0,0,0,0,0]
     noun_result = [0,0,0,0,0,0,0]
-    count = 0
+    Verb_Weightage = 1
 
     #print("Verbs: ")
-    for eachQueryVerb in verb:
-        count = 0
-        for eachItem in Category:
-            for eachVerb in eachItem["verbs"]:
-                #print(count, eachQueryVerb, eachVerb)
-                simWord = SimilarityCheck(eachQueryVerb, eachVerb)
-                if sim_result[count] < simWord: sim_result[count] = simWord
-                #sim_result[count] +=  SimilarityCheck(eachQueryVerb, eachVerb)
-                #if len(eachItem["verbs"]) != 0: sim_result[count] /= len(eachItem["verbs"])
-            count += 1
+    if len(verb) == 0:
+        speak("Iris could not get you. Please speak correctly.")
+        return
+    else:
+        for eachQueryVerb in verb:
+            count = 0
+            for eachItem in Category:
+                for eachVerb in eachItem["verbs"]:
+                    # print(count, eachQueryVerb, eachVerb)
+                    simWord = SimilarityCheck(eachQueryVerb, eachVerb)
+                    if sim_result[count] < simWord: sim_result[count] = simWord * Verb_Weightage
+                    avgVerb_result[count] += SimilarityCheck(eachQueryVerb, eachVerb) * Verb_Weightage
+                    if len(eachItem["verbs"]) != 0: avgVerb_result[count] /= len(eachItem["verbs"])
+                count += 1
+            Verb_Weightage = Verb_Weightage * (60 / 100)
+        # print("Nouns: ")
+        Noun_Weightage = 1
+        for eachQueryNoun in noun:
+            count = 0
+            for eachItem in Category:
+                for eachNoun in eachItem["nouns"]:
+                    # print(count, eachQueryNoun, eachNoun)
+                    simWord = SimilarityCheck(eachQueryNoun, eachNoun)
+                    if sim_result[count] < simWord: sim_result[count] = simWord * Noun_Weightage
+                    avgNoun_result[count] += SimilarityCheck(eachQueryNoun, eachNoun) * Noun_Weightage
+                if len(eachItem["nouns"]) != 0: avgNoun_result[count] /= len(eachItem["nouns"])
+                count += 1
+            Noun_Weightage = Noun_Weightage * (60 / 100)
 
-    #print("Nouns: ")
-    for eachQueryNoun in noun:
-        count = 0
-        for eachItem in Category:
-            for eachNoun in eachItem["nouns"]:
-                #print(count, eachQueryNoun, eachNoun)
-                simWord = SimilarityCheck(eachQueryNoun, eachNoun)
-                if sim_result[count] < simWord: sim_result[count] = simWord
-                #noun_result[count] +=  SimilarityCheck(eachQueryNoun, eachNoun)
-            if len(eachItem["nouns"]) != 0: noun_result[count] /= len(eachItem["nouns"])
-            count += 1
+        # print(sim_result, noun_result)
+        indexVerbFirstMax = sim_result.index(max(sim_result))
+        valueVerbFirst = sim_result[indexVerbFirstMax]
+        sim_result[indexVerbFirstMax] = 0
 
-    print(sim_result, noun_result)
+        indexVerbSecondMax = sim_result.index(max(sim_result))
+        valueVerbSecond = sim_result[indexVerbSecondMax]
+        sim_result[indexVerbSecondMax] = 0
 
-TaskSelection("Can you Search how to write quick sort algorithm")
+        # print(avgVerb_result, avgNoun_result)
 
-'''
-def TaskSelection(text):
-    blob = TextBlob(text)
-    verb = GetVerbs(blob) # getting verbs in a list
-    noun = GetNoun(blob)
+        indexNounFirstMax = noun_result.index(max(noun_result))
+        valueNounFirst = noun_result[indexNounFirstMax]
+        noun_result[indexNounFirstMax] = 0
 
-    result_similarity = [0,0,0,0,0,0,0] # a list to store the similarity check values
-    noun_similarity = [0,0,0,0,0,0,0]
-    count = 0
+        indexNounSecondMax = noun_result.index(max(noun_result))
+        valueNounSecond = noun_result[indexNounSecondMax]
+        noun_result[indexNounSecondMax] = 0
 
-    for eachQueryVerb in verb:
-        for itemCategory in Category:
-            for eachVerb in itemCategory["verbs"]:
-                result_similarity[count] += SimilarityCheck(eachVerb, eachQueryVerb)
-                print(result_similarity[count], eachVerb, eachQueryVerb)
-                #result_similarity[count] /= len(itemCategory["verbs"])
-            count += 1
+        print("First Verb", indexVerbFirstMax, valueVerbFirst)
+        print("Second Verb", indexVerbSecondMax, valueVerbSecond)
+        print("First Noun", indexNounFirstMax, valueNounFirst)
+        print("Second Noun", indexNounSecondMax, valueNounSecond)
 
-    count = 0
+        if valueVerbFirst - valueVerbSecond <= LowConfidence:
+            print()
+            switchTaskAtLowConfidence(indexVerbFirstMax)
+            feedbackText, listenFlag = listen()
+            if listenFlag != 1:
+                sentence = TextBlob(feedbackText)
+                flag = 0
 
-    for eachQueryNoun in noun:
-        for itemCategory in Category:
-            for eachNoun in itemCategory["nouns"]:
-                noun_similarity[count] += SimilarityCheck(eachNoun, eachQueryNoun)
-                print(result_similarity[count], eachNoun, eachQueryNoun)
-                #noun_similarity[count] /= len(itemCategory["nouns"])
-            count += 1
+                for eachItem in sentence:
+                    if "yes" == eachItem[0] or "Yes" == eachItem[0] or "yess" == eachItem[0]:
+                        flag = 1
+                        switchExecuteTask(indexVerbFirstMax, text)
+                        break
 
-    for eachResultSim, eachNounSim in result_similarity, noun_similarity:
-        eachResultSim += eachNounSim / 2
+                if flag == 0:
+                    switchExecuteTask(indexVerbSecondMax, text)
+        else:
+            switchExecuteTask(indexVerbFirstMax, text)
 
-    #print(result_similarity)
 
-TaskSelection("Set an alarm at 8")'''
-    #print(similar_param)
-    #print(similar_param.index(max(similar_param)))
+def switchExecuteTask(x, text):
+    if x == 0: bingSearch(text)
+    elif x == 1: speak("Scroll yet to be coded")
+    elif x == 2: speak("Type yet to be coded")
+    elif x == 3: playYouTube(text)
+    elif x == 4: retrieveNews(text)
+    elif x == 5: speak("Alarm yet to be coded")
+    elif x == 6: speak("Email yet to be coded")
+    else: speak("I am sorry I miscalculated something. Can you please speak again ?")
+
+
+def switchTaskAtLowConfidence(x):
+    if x == 0: speak("Do you want to search ?")
+    elif x == 1: speak("Do you want to scroll ?")
+    elif x == 2: speak("Do you want to type ?")
+    elif x == 3: speak("Do you want to play song ?")
+    elif x == 4: speak("Do you want me to read headlines ?")
+    elif x == 5: speak("Do you want to set reminder ?")
+    elif x == 6: speak("Do you want to send email ?")
+    else: speak("I am sorry I miscalculated something. Can you please speak again ?")
 
 def Askwords(blob):
    # print(blob.words)
