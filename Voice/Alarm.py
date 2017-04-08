@@ -16,4 +16,4 @@ def setReminder(hours, minutes, Reminder): #Put Threading!!
             print("Reminder executed!")
             break
 
-setReminder(17,4, "Meeting")
+#setReminder(17,4, "Meeting")
