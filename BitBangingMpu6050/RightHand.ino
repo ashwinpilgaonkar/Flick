@@ -804,7 +804,7 @@ address=105;
   //nDevices = 0;
       if(flag==6)
       {
-        mpunumber1();
+        mpunumber5();
         //delay(1000);
       }
       if(flag==7)
@@ -825,12 +825,13 @@ address=105;
        
        if(flag==10)
        {
-        mpunumber5();
+        mpunumber1();
         flag=6;
         //delay(1000);
       }
        else
         ++flag;
+        mySerial.flush();
       // The i2c_scanner uses the return value of
       // the Write.endTransmisstion to see if
       // a device did acknowledge to the address.
@@ -1032,7 +1033,7 @@ int MPU6050_write(int start, const uint8_t *pData, int size)
  
   n = Wire.write(pData, size);  // write data bytes
   if (n != size)
-    return (-21);
+    return (-21); 
  
   error = Wire.endTransmission(true); // release the I2C-bus
   if (error != 0)
@@ -1076,9 +1077,11 @@ void mpunumber1()
     address=105;
     Wire.beginTransmission(address);
       error = Wire.endTransmission();
-      
+
+      mySerial.println("The error is :");
+      mySerial.println(error);
       if (error == 0)
-        {
+        {                                                                           
           /*Serial.print("MPU number : ");
           Serial.println(flag-5); 
           Serial.print(F("I2C device found at address 0x"));
@@ -1235,7 +1238,7 @@ void mpunumber1()
   Serial.print(unfiltered_gyro_angle_y, 2);
   Serial.print(F(","));
   Serial.print(unfiltered_gyro_angle_z, 2);*/
-  mySerial.println(F("@ "));             //Filtered angle
+  mySerial.println(F("# "));             //Filtered angle
   mySerial.print(angle_x, DEC);
   mySerial.println(F(""));
   mySerial.print(angle_y, DEC);
@@ -2037,7 +2040,7 @@ void mpunumber5()
   Serial.print(unfiltered_gyro_angle_y, 2);
   Serial.print(F(","));
   Serial.print(unfiltered_gyro_angle_z, 2);*/
-  mySerial.println(F("^"));             //Filtered angle
+  mySerial.println(F("@"));             //Filtered angle
   mySerial.print(angle_x, DEC);
   mySerial.println(F(","));
   mySerial.print(angle_y, DEC);
