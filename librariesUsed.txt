@@ -8,3 +8,8 @@ pyautogui
     Linux:  pip install python3-Xlib
 
 mpg321: sudo apt-get install mpg321
+
+Arduino C Libraries : 
+SoftwareSerial
+SoftWire
+SoftI2C
