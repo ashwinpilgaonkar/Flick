@@ -3,6 +3,7 @@ gnp
 speech_recognition
 pyserial
 pyautogui
+textblob
     Mac OS: pip install pyobjc-core
             pip install pyobjc
     Linux:  pip install python3-Xlib
