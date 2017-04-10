@@ -27,14 +27,21 @@ def GetNoun(blob):
     for word, tag in blob.tags:
         if tag in ("NN", "NNS", "NNPS","NNP"):
             noun.append(word.lemmatize())
+    #print(noun)
     return(noun)
+
 
 def GetVerbs(blob):
     verb = []
     for word, tag in blob.tags:
         if tag in ("VB", "VBD", "VBG", "VBN", "VBP", "VBZ" ):
             verb.append(word.lemmatize())
+    #print(verb)
     return verb
+
+#blob = TextBlob("send an email to rashika bhargava")
+#GetVerbs(blob=blob)
+#GetNoun(blob)
 
 def SimilarityCheck(eachWord1,eachWord2):
     try:
@@ -226,7 +233,7 @@ def switchTaskAtLowConfidence(x):
     elif x == 6: speak("Do you want to send email ?")
     else: speak("I am sorry I miscalculated something. Can you please speak again ?")
 
-TaskSelection("I want to hear peacful music")
+#TaskSelection("I want to hear peacful music")
 
 
 def Askwords(blob):
