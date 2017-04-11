@@ -1,0 +1,4 @@
+Complementary Filter :
+http://www.pieter-jan.com/node/11
+MPU-6050 Multiple Addressing : 
+http://playground.arduino.cc/Main/MPU-6050#multiple
