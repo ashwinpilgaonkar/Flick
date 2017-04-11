@@ -23,7 +23,7 @@ Match_Table = {
 
 total_Num_Class = 7
 LowConfidence = 0.1
-
+similarity_Threshold = 0.5
 
 def pro_Class(key="search"):
     total_freq = 0
@@ -49,7 +49,6 @@ def cal_Each_Column_Pro(queryWord = "", className="search", key="Verbs"):
         index += 1
 
     return (document_Frequency + 1) / (total_Num_Doc + total_Num_Class)
-
 
 def cal_total_Pro(queryInterrogatives=[], queryVerbs=[], queryNouns=[], className="search"):
     interrogatives_result = 1
@@ -94,7 +93,7 @@ def similarity_Matrix(big_Union, text, row, column):
                 break
             else:
                 similarity = SimilarityCheck(eachUnionWord, eachQueryWord)
-                if similarity > 0.5:
+                if similarity > similarity_Threshold:
                     vec_list[j,i] = similarity
                 else:
                     vec_list[j,i] = 0
@@ -108,9 +107,7 @@ def similarity_Matrix(big_Union, text, row, column):
         i += 1
         j = 0
 
-    print(sim_vector)
     return sim_vector
-
 
 def match_Similarity_with_Resposes(className, queryText):
     bag_Of_Words = []
@@ -122,7 +119,6 @@ def match_Similarity_with_Resposes(className, queryText):
 
     row = len(queryText.split())
     column = len(big_Union)
-    print("row: ", row, "column: ", column)
 
     s1 = similarity_Matrix(big_Union, queryText,row, column)
     row = len(bag_Of_Words)
@@ -183,29 +179,77 @@ def bernoulli_Selection(text):
     selection_list[5] = cal_total_Pro(interrogatives, verbs, nouns, "reminder")
     selection_list[6] = cal_total_Pro(interrogatives, verbs, nouns, "email")
 
-    object1 = Rank()
-    object1.probability = max(selection_list)
-    object1.index = selection_list.index(object1.probability)
+    Objects = []
+    for i in list(range(7)):
+        object = Rank()
+        object.probability = max(selection_list)
+        object.index = selection_list.index(object.probability)
+        Objects.append(object)
+        selection_list.insert(object.index, 0)
+        print("Rank ", i + 1, object.index, object.probability)
 
-    selection_list.insert(object1.index, 0)
+    max_Similarity_Index = 0
+    checkFlag = False
+    for i in list(range(6)):
+        try:
+            if i == 6:
+                similarity1 = match_Similarity_with_Resposes(ClassName[Objects[i].index], text)
+                if max_Similarity_Index < similarity1:
+                    max_Similarity_Index = Objects[i].index
 
-    object2 = Rank()
-    object2.probability = max(selection_list)
-    object2.index = selection_list.index(object2.probability)
+            elif Objects[i].probability == Objects[i + 1].probability or Objects[i].probability - Objects[i+1].probability <= 0.1:
+                checkFlag = True
+                similarity1 = match_Similarity_with_Resposes(ClassName[Objects[i].index], text)
+                similarity2 = match_Similarity_with_Resposes(ClassName[Objects[i+1].index], text)
 
-    print("Rank 1: ", object1.index, object1.probability)
-    print("Rank 2: ", object2.index, object2.probability)
+                if max_Similarity_Index < similarity1:
+                    max_Similarity_Index = Objects[i].index
 
-    if object1.probability - object2.probability <= LowConfidence:
-        similarity1 = match_Similarity_with_Resposes(ClassName[object1.index], text)
-        similarity2 = match_Similarity_with_Resposes(ClassName[object2.index], text)
+                elif max_Similarity_Index < similarity2:
+                    max_Similarity_Index = Objects[i+1].index
 
-        if similarity1 >= similarity2:
+            else:
+                break
+        except:
             pass
-        else: pass
 
+    if checkFlag == True :
+        append_In_MatchTable(blob, ClassName[max_Similarity_Index], text)
+        switchExecuteTask(max_Similarity_Index, text)
     else:
-        pass
+        switchExecuteTask(Objects[0].index, text)
+
+def append_In_MatchTable(blob, className, text):
+    nouns = GetNoun(blob)
+    verbs = GetVerbs(blob)
+    interrogatives = GetInterrogatives(blob)
+
+    lengths = []
+    lengths.append(len(nouns))
+    lengths.append(len(verbs))
+    lengths.append(len(interrogatives))
+
+    max_Length = max(lengths)
+
+    for i in list(range(max_Length)):
+        try:
+            Match_Table["Interrogatives"].append(interrogatives[i])
+        except:
+            Match_Table["Interrogatives"].append("")
+        try:
+            Match_Table["Verbs"].append(verbs[i])
+        except:
+            Match_Table["Verbs"].append("")
+        try:
+            Match_Table["Nouns"].append(nouns[i])
+        except:
+            Match_Table["Nouns"].append("")
+
+        Match_Table["Class"].append(className)
+
+    Responses[className].append(text)
+
+    print(Responses)
 
 ClassName = {
      0 : "search" ,
@@ -224,7 +268,7 @@ class Rank:
 
 
 def main():
-    bernoulli_Selection("how to find dot product")
+    bernoulli_Selection("tell me todays news headline")
 
 
 if __name__ == '__main__':

@@ -214,7 +214,7 @@ def SimilarityComparison(indexOfCategory, verbs, nouns):
 
 def switchExecuteTask(x, text):
     if x == 0: bingSearch(text)
-    elif x == 1: speak("Scroll yet to be coded")
+    elif x == 1: speak("Screenshot yet to be coded")
     elif x == 2: speak("Type yet to be coded")
     elif x == 3: playYouTube(text)
     elif x == 4: retrieveNews(text)
