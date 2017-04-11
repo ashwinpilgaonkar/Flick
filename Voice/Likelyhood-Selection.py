@@ -2,28 +2,35 @@ from textblob import TextBlob
 from Voice.SelectTask import *
 import numpy as np
 import math
+import json
 
-Responses = {"search" : ["who is donald trump", "what is cnc machine", "how to implement quicksort algorithm", "can you search how to remove stop words", "what is the weather today"] ,
-            "screenshot" : ["take a screenshot"] ,
-            "type": ["can you type hello how are you"] ,
-            "youtube" : ["I want to hear peaceful music", "play me a song starboy"] ,
-            "news" : ["what is todays headlines", "tell me news about narendra modi"] ,
-            "reminder" : ["set an alarm at 8:30 pm", "remind me, I have a meeting at 8:00 pm"] ,
-            "email" : ["send an email to rashika bhargava"]
-            }
 
-Questions = [ ["",""], ["",""], ["",""], ["",""], ["",""], ["",""], ["",""] ]
+Responses = {"search": ["who is donald trump", "what is cnc machine", "how to implement quicksort algorithm",
+                         "can you search how to remove stop words", "what is the weather today"],
+              "screenshot": ["take a screenshot"],
+              "type": ["can you type hello how are you"],
+              "youtube": ["I want to hear peaceful music", "play me a song starboy"],
+              "news": ["what is todays headlines", "tell me news about narendra modi"],
+              "reminder": ["set an alarm at 8:30 pm", "remind me, I have a meeting at 8:00 pm"],
+              "email": ["send an email to rashika bhargava"]
+              }
+
+# Questions = [ ["",""], ["",""], ["",""], ["",""], ["",""], ["",""], ["",""] ]
 
 Match_Table = {
-                "Interrogatives" : ["who", "what",     "how",     "how",      ""    ,   "what"   ,    ""   ,  "" ,   ""  ,    ""   ,   "what"   ,       "" ,      "" ,     ""    ,    ""    ,   ""         ],
-                "Verbs" :          [  "",   "",     "implement",  "implement", "search",     "" , "type","  write", "hear",  "play" ,    ""     ,     "tell" ,     "set" ,  "put" ,  "remind" ,  "send"    ],
-                "Nouns" :          ["trump", "machine","quicksort","algorithm","words", "weather",  ""   ,   ""  ,   ""   , "starboy", "headline",   "narendra",  "alarm" , "alarm",  "meeting",  "email"  ],
-                "Class" :          ["search", "search","search",   "search",   "search","search","type", "type" ,"youtube", "youtube",  "news"   ,     "news"   ,   "reminder" ,  "reminder",    "email"   ]
-              }
+    "Interrogatives": ["who", "what", "how", "how", "", "what", "", "", "", "", "what", "", "", "", "", ""],
+    "Verbs": ["", "", "implement", "implement", "search", "", "type", "  write", "hear", "play", "", "tell", "set",
+              "put", "remind", "send"],
+    "Nouns": ["trump", "machine", "quicksort", "algorithm", "words", "weather", "", "", "", "starboy", "headline",
+              "narendra", "alarm", "alarm", "meeting", "email"],
+    "Class": ["search", "search", "search", "search", "search", "search", "type", "type", "youtube", "youtube", "news",
+              "news", "reminder", "reminder", "email"]
+}
 
 total_Num_Class = 7
 LowConfidence = 0.1
 similarity_Threshold = 0.5
+
 
 def pro_Class(key="search"):
     total_freq = 0
@@ -34,7 +41,8 @@ def pro_Class(key="search"):
             class_freq += 1
     return class_freq / total_freq
 
-def cal_Each_Column_Pro(queryWord = "", className="search", key="Verbs"):
+
+def cal_Each_Column_Pro(queryWord="", className="search", key="Verbs"):
     document_Frequency = 0
     total_Num_Doc = 0
     index = 0
@@ -49,6 +57,7 @@ def cal_Each_Column_Pro(queryWord = "", className="search", key="Verbs"):
         index += 1
 
     return (document_Frequency + 1) / (total_Num_Doc + total_Num_Class)
+
 
 def cal_total_Pro(queryInterrogatives=[], queryVerbs=[], queryNouns=[], className="search"):
     interrogatives_result = 1
@@ -65,8 +74,9 @@ def cal_total_Pro(queryInterrogatives=[], queryVerbs=[], queryNouns=[], classNam
 
     return float(interrogatives_result) * float(verbs_result) * float(nouns_result) * float(pro_Class(className))
 
+
 def similarity_Matrix(big_Union, text, row, column):
-    vec_list = np.zeros((row,column),dtype=np.float64)
+    vec_list = np.zeros((row, column), dtype=np.float64)
 
     i = 0
     j = 0
@@ -74,7 +84,7 @@ def similarity_Matrix(big_Union, text, row, column):
     for eachQueryWord in text.split():
         for eachUnionWord in big_Union:
             if eachQueryWord == eachUnionWord:
-                vec_list[i,j] = 1
+                vec_list[i, j] = 1
             else:
                 vec_list[i, j] = 0
             j += 1
@@ -88,20 +98,20 @@ def similarity_Matrix(big_Union, text, row, column):
     for eachUnionWord in big_Union:
         max = 0
         for eachQueryWord in text.split():
-            if vec_list[j,i] == 1:
+            if vec_list[j, i] == 1:
                 max = 1
                 break
             else:
                 similarity = SimilarityCheck(eachUnionWord, eachQueryWord)
                 if similarity > similarity_Threshold:
-                    vec_list[j,i] = similarity
+                    vec_list[j, i] = similarity
                 else:
-                    vec_list[j,i] = 0
+                    vec_list[j, i] = 0
 
-                if max <= vec_list[j,i]:
-                    max = vec_list[j,i]
+                if max <= vec_list[j, i]:
+                    max = vec_list[j, i]
 
-            j+= 1
+            j += 1
 
         sim_vector.append(max)
         i += 1
@@ -109,10 +119,11 @@ def similarity_Matrix(big_Union, text, row, column):
 
     return sim_vector
 
+
 def match_Similarity_with_Resposes(className, queryText):
     bag_Of_Words = []
     for eachSentence in Responses[className]:
-        for eachWord in  eachSentence.split():
+        for eachWord in eachSentence.split():
             bag_Of_Words.append(eachWord)
 
     big_Union = list(set().union(bag_Of_Words, queryText.split()))
@@ -120,7 +131,7 @@ def match_Similarity_with_Resposes(className, queryText):
     row = len(queryText.split())
     column = len(big_Union)
 
-    s1 = similarity_Matrix(big_Union, queryText,row, column)
+    s1 = similarity_Matrix(big_Union, queryText, row, column)
     row = len(bag_Of_Words)
 
     classResponseText = ""
@@ -128,16 +139,17 @@ def match_Similarity_with_Resposes(className, queryText):
         classResponseText += eachWord
         classResponseText += " "
 
-    s2 = similarity_Matrix(big_Union,classResponseText,row, column)
+    s2 = similarity_Matrix(big_Union, classResponseText, row, column)
 
-    dot_Product = np.dot(s1,s2)
-    magnitude_S1 = math.sqrt(sum(i**2 for i in s1))
-    magnitude_S2 = math.sqrt(sum(i**2 for i in s2))
+    dot_Product = np.dot(s1, s2)
+    magnitude_S1 = math.sqrt(sum(i ** 2 for i in s1))
+    magnitude_S2 = math.sqrt(sum(i ** 2 for i in s2))
 
     cosine_Sim = dot_Product / (magnitude_S1 * magnitude_S2)
 
     print("Cosine Similarity: ", cosine_Sim)
     return cosine_Sim
+
 
 def remove_StopWords(text):
     StopWords = "a about above after again against all am an and any are aren't as at be because been before being below between both\
@@ -154,6 +166,7 @@ its itself let's me more most mustn't my myself no nor not of off on once only o
             stripped_Sentence = stripped_Sentence + " " + eachWord
     return TextBlob(stripped_Sentence)
 
+
 def GetInterrogatives(blob):
     interrogatives = ["what", "when", "why", "which", "who", "how", "whose"]
     listOfInterrogatives = []
@@ -163,15 +176,29 @@ def GetInterrogatives(blob):
 
     return listOfInterrogatives
 
+
 def bernoulli_Selection(text):
+    global Responses, Match_Table
+    try:
+        with open('Responses.json', 'r') as inputFile:
+            Responses = json.load(inputFile)
+    except:
+        print("Responses.json file not found")
+
+    try:
+        with open('Match_Table.json', 'r') as inputFile:
+            Match_Table = json.load(inputFile)
+    except:
+        print("Match Table.json file not found")
+
     blob = remove_StopWords(text.lower())
     verbs = GetVerbs(blob)
     nouns = GetNoun(blob)
     interrogatives = GetInterrogatives(blob)
 
-    selection_list = [0,0,0,0,0,0,0]
+    selection_list = [0, 0, 0, 0, 0, 0, 0]
 
-    selection_list[0] = cal_total_Pro(interrogatives,verbs, nouns, "search")
+    selection_list[0] = cal_total_Pro(interrogatives, verbs, nouns, "search")
     selection_list[1] = cal_total_Pro(interrogatives, verbs, nouns, "screenshot")
     selection_list[2] = cal_total_Pro(interrogatives, verbs, nouns, "type")
     selection_list[3] = cal_total_Pro(interrogatives, verbs, nouns, "youtube")
@@ -197,27 +224,40 @@ def bernoulli_Selection(text):
                 if max_Similarity_Index < similarity1:
                     max_Similarity_Index = Objects[i].index
 
-            elif Objects[i].probability == Objects[i + 1].probability or Objects[i].probability - Objects[i+1].probability <= 0.1:
+            elif Objects[i].probability == Objects[i + 1].probability or Objects[i].probability - Objects[
+                        i + 1].probability <= 0.1:
                 checkFlag = True
                 similarity1 = match_Similarity_with_Resposes(ClassName[Objects[i].index], text)
-                similarity2 = match_Similarity_with_Resposes(ClassName[Objects[i+1].index], text)
+                similarity2 = match_Similarity_with_Resposes(ClassName[Objects[i + 1].index], text)
 
                 if max_Similarity_Index < similarity1:
                     max_Similarity_Index = Objects[i].index
 
                 elif max_Similarity_Index < similarity2:
-                    max_Similarity_Index = Objects[i+1].index
+                    max_Similarity_Index = Objects[i + 1].index
 
             else:
                 break
         except:
             pass
 
-    if checkFlag == True :
+    if checkFlag == True:
         append_In_MatchTable(blob, ClassName[max_Similarity_Index], text)
         switchExecuteTask(max_Similarity_Index, text)
     else:
         switchExecuteTask(Objects[0].index, text)
+
+    try:
+        with open('Responses.json', 'w') as outfile:
+            json.dump(Responses, outfile)
+    except:
+        print("Could not write Response.json")
+    try:
+        with open('Match_Table.json', 'w') as outfile:
+            json.dump(Match_Table, outfile)
+    except:
+        print("Could not write Match_Table.json")
+
 
 def append_In_MatchTable(blob, className, text):
     nouns = GetNoun(blob)
@@ -249,16 +289,17 @@ def append_In_MatchTable(blob, className, text):
 
     Responses[className].append(text)
 
-    print(Responses)
+   # print(Responses)
+
 
 ClassName = {
-     0 : "search" ,
-     1 : "screenshot",
-     2 : "type" ,
-     3 : "youtube",
-     4 : "news",
-     5 : "reminder",
-     6 : "email"
+    0: "search",
+    1: "screenshot",
+    2: "type",
+    3: "youtube",
+    4: "news",
+    5: "reminder",
+    6: "email"
 }
 
 
@@ -268,7 +309,7 @@ class Rank:
 
 
 def main():
-    bernoulli_Selection("tell me todays news headline")
+    bernoulli_Selection("I want to hear pataka guddi")
 
 
 if __name__ == '__main__':
