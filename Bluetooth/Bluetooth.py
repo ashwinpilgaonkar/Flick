@@ -1,9 +1,9 @@
+import traceback
+
 import serial
 from sys import platform as platform
 import serial.tools.list_ports
 import pyautogui
-import asyncio
-import serial.aio
 import serial.threaded
 
 def getOS():
@@ -26,7 +26,7 @@ def getOS():
 def bluetoothRight(data):
     pass #if data is string c
 
-class Output(asyncio.Protocol):
+class Output(serial.threaded.Protocol):
     def connection_made(self, transport):
         self.transport = transport
         print('port opened', transport)
@@ -42,15 +42,14 @@ class Output(asyncio.Protocol):
 
     def connection_lost(self, exc):
         print('port closed')
-        asyncio.get_event_loop().stop()
+        traceback.print_exc(0)
 
 def main():
-    while loop.is_running():
-        loop = asyncio.get_event_loop()
-        coro = serial.aio.create_serial_connection(loop, Output, getOS(), baudrate=115200)
-        loop.run_until_complete(coro)
-        loop.run_forever()
-        loop.close()
+    ser = serial.Serial(getOS(), baudrate=115200, timeout=1)
+    protocol = serial.threaded.ReaderThread(ser, Output)
+    protocol.run()
+
+
 
 if __name__ == '__main__':
     main()
