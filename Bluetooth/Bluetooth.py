@@ -1,110 +1,56 @@
 import serial
 from sys import platform as platform
 import serial.tools.list_ports
-import time
-import Gesture
 import pyautogui
+import asyncio
+import serial.aio
+import serial.threaded
 
-class Bluetooth():
-    input_data = bytes
+def getOS():
+    port = "/dev/tty.Right-DevB"
 
-    def __init__(self):
-        print("Bluetooth")
-
-    def isFloat(self, string):
-        try:
-            return float(string)
-        except ValueError:
-            return False
-
-    def getOS(self):
+    # LINUX
+    if platform == "linux" or platform == "linux2":
         port = "/dev/tty.Right-DevB"
 
-        #LINUX
-        if platform == "linux" or platform == "linux2":
-            port = "/dev/tty.Right-DevB"
+    # MAC OS
+    elif platform == "darwin":
+        port = "/dev/tty.Right-DevB"
 
-        #MAC OS
-        elif platform == "darwin":
-            port = "/dev/tty.Right-DevB"
+    # WINDOWS
+    elif platform == "win32":
+        port = "COM6"
 
-        #WINDOWS
-        elif platform == "win32":
-            port = "COM6"
+    return port
 
-        return port
+def bluetoothRight(data):
+    pass #if data is string c
 
+class Output(asyncio.Protocol):
+    def connection_made(self, transport):
+        self.transport = transport
+        print('port opened', transport)
+        transport.serial.rts = False
 
-    def captureGesture(self):
-        x = ""
-        y = ""
-        z = ""
+    def data_received(self, data):
+        try:
+            print(float(data.decode().rstrip()))
+        except:
+            print(data.decode().rstrip())
 
-        dbOp = Gesture.Database.dbOperation()
-        dbOp.create()
+        pyautogui.moveRel(0,0,duration=0)
 
-        port = self.getOS()
+    def connection_lost(self, exc):
+        print('port closed')
+        asyncio.get_event_loop().stop()
 
-        bluetooth = serial.Serial(port, 115200)
-        print("Connected Right Hand Bluetooth")
-        bluetooth.flushInput()
+def main():
+    while loop.is_running():
+        loop = asyncio.get_event_loop()
+        coro = serial.aio.create_serial_connection(loop, Output, getOS(), baudrate=115200)
+        loop.run_until_complete(coro)
+        loop.run_forever()
+        loop.close()
 
-        # timeout = time.time() + 5
-
-        while 1:
-            self.input_data = bluetooth.readline()
-
-            if (self.input_data.decode()[0] == "@"):
-
-                # Read Finger values
-                self.input_data = bluetooth.readline()
-                x = self.input_data.decode().rstrip()
-
-                self.input_data = bluetooth.readline()
-                y = self.input_data.decode().rstrip()
-
-                self.input_data = bluetooth.readline()
-                z = self.input_data.decode().rstrip()
-
-                # Store values in db
-                values = [x,y,z]
-                bluetooth.close()
-                break
-
-        return values
-
-    def bluetoothRight(self):
-        x = ""
-        y = ""
-        z = ""
-
-        port = self.getOS()
-
-        bluetooth = serial.Serial(port, 115200)
-        print("Connected Right Hand Bluetooth")
-        bluetooth.flushInput()
-
-        #timeout = time.time() + 5
-
-        while 1:
-            self.input_data = bluetooth.readline()
-
-            if (self.input_data.decode()[0]=="@"):
-
-                #Read Finger values
-                self.input_data = bluetooth.readline()
-                x = self.input_data.decode().rstrip()
-
-                self.input_data = bluetooth.readline()
-                y = self.input_data.decode().rstrip()
-
-                self.input_data = bluetooth.readline()
-                z = self.input_data.decode().rstrip()
-
-                #Compare with values from db
-                if(float(x)<-13) and (float(y)<64) and (float(z)<-117):
-                   print("YES")
-                   pyautogui.typewrite('q', interval=1)
-
-                else:
-                    print("NO")
+if __name__ == '__main__':
+    main()
