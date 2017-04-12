@@ -1236,6 +1236,9 @@ void mpunumber1()
   Serial.print(unfiltered_gyro_angle_y, 2);
   Serial.print(F(","));
   Serial.print(unfiltered_gyro_angle_z, 2);*/
+   angle_x=(int)(angle_x*100)/100;
+  angle_y=(int)(angle_y*100)/100;
+  angle_z=(int)(angle_z*100)/100;
   mySerial.println(F("^"));             //Filtered angle
   mySerial.println(angle_x, DEC);
   mySerial.println(angle_y, DEC);
@@ -1433,6 +1436,9 @@ void mpunumber2()
   Serial.print(unfiltered_gyro_angle_y, 2);
   Serial.print(F(","));
   Serial.print(unfiltered_gyro_angle_z, 2);*/
+     angle_x=(int)(angle_x*100)/100;
+  angle_y=(int)(angle_y*100)/100;
+  angle_z=(int)(angle_z*100)/100;
   mySerial.println(F("#"));             //Filtered angle
   mySerial.println(angle_x, DEC);
   mySerial.println(angle_y, DEC);
@@ -1631,6 +1637,9 @@ void mpunumber3()
   Serial.print(unfiltered_gyro_angle_y, 2);
   Serial.print(F(","));
   Serial.print(unfiltered_gyro_angle_z, 2);*/
+  angle_x=(int)(angle_x*100)/100;
+  angle_y=(int)(angle_y*100)/100;
+  angle_z=(int)(angle_z*100)/100;
   mySerial.println(F("$"));             //Filtered angle
   mySerial.println(angle_x, DEC);
    mySerial.println(angle_y, DEC);
@@ -1830,6 +1839,9 @@ void mpunumber4()
   Serial.print(unfiltered_gyro_angle_y, 2);
   Serial.print(F(","));
   Serial.print(unfiltered_gyro_angle_z, 2);*/
+ angle_x=(int)(angle_x*100)/100;
+  angle_y=(int)(angle_y*100)/100;
+  angle_z=(int)(angle_z*100)/100;
   mySerial.println(F("%"));             //Filtered angle
   mySerial.println(angle_x, DEC);
   mySerial.println(angle_y, DEC);
@@ -2027,6 +2039,9 @@ void mpunumber5()
   Serial.print(unfiltered_gyro_angle_y, 2);
   Serial.print(F(","));
   Serial.print(unfiltered_gyro_angle_z, 2);*/
+  angle_x=(int)(angle_x*100)/100;
+  angle_y=(int)(angle_y*100)/100;
+  angle_z=(int)(angle_z*100)/100;
   mySerial.println(F("@"));             //Filtered angle
   mySerial.println(angle_x, DEC);
   mySerial.println(angle_y, DEC);
