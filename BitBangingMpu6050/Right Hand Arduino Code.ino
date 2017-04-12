@@ -1236,14 +1236,11 @@ void mpunumber1()
   Serial.print(unfiltered_gyro_angle_y, 2);
   Serial.print(F(","));
   Serial.print(unfiltered_gyro_angle_z, 2);*/
-  mySerial.println(F("^ "));             //Filtered angle
+  mySerial.println(F("^"));             //Filtered angle
   mySerial.print(angle_x, DEC);
-  mySerial.println(F(""));
   mySerial.print(angle_y, DEC);
-  mySerial.println(F(""));
   mySerial.print(angle_z, DEC);
-  mySerial.println(F(""));
-  
+  mySerial.println(F(""));  
   // Delay so we don't swamp the serial port
  
          // nDevices++;
@@ -1439,11 +1436,9 @@ void mpunumber2()
   Serial.print(unfiltered_gyro_angle_z, 2);*/
   mySerial.println(F("#"));             //Filtered angle
   mySerial.print(angle_x, DEC);
-  mySerial.println(F(""));
   mySerial.print(angle_y, DEC);
-  mySerial.println(F(""));
   mySerial.print(angle_z, DEC);
-  mySerial.println(F(""));
+  
   
   // Delay so we don't swamp the serial port
   
@@ -1639,11 +1634,9 @@ void mpunumber3()
   Serial.print(unfiltered_gyro_angle_z, 2);*/
   mySerial.println(F("$"));             //Filtered angle
   mySerial.print(angle_x, DEC);
-  mySerial.println(F(""));
-  mySerial.print(angle_y, DEC);
-  mySerial.println(F(""));
-  mySerial.print(angle_z, DEC);
-  mySerial.println(F(""));
+   mySerial.print(angle_y, DEC);
+    mySerial.print(angle_z, DEC);
+  
   
   // Delay so we don't swamp the serial port
   
@@ -1838,13 +1831,10 @@ void mpunumber4()
   Serial.print(unfiltered_gyro_angle_y, 2);
   Serial.print(F(","));
   Serial.print(unfiltered_gyro_angle_z, 2);*/
-  mySerial.println(F("% "));             //Filtered angle
+  mySerial.println(F("%"));             //Filtered angle
   mySerial.print(angle_x, DEC);
-  mySerial.println(F(""));
   mySerial.print(angle_y, DEC);
-  mySerial.println(F(""));
   mySerial.print(angle_z, DEC);
-  mySerial.println(F(""));
   
   // Delay so we don't swamp the serial port
   
@@ -2040,11 +2030,8 @@ void mpunumber5()
   Serial.print(unfiltered_gyro_angle_z, 2);*/
   mySerial.println(F("@"));             //Filtered angle
   mySerial.print(angle_x, DEC);
-  mySerial.println(F(""));
   mySerial.print(angle_y, DEC);
-  mySerial.println(F(""));
   mySerial.print(angle_z, DEC);
-  mySerial.println(F(""));
   
   // Delay so we don't swamp the serial port
   
