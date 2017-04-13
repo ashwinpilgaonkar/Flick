@@ -2,3 +2,6 @@ Complementary Filter :
 http://www.pieter-jan.com/node/11
 MPU-6050 Multiple Addressing : 
 http://playground.arduino.cc/Main/MPU-6050#multiple
+http://pyserial.readthedocs.io/en/latest/pyserial_api.html?highlight=reader%20thread
+http://pythonhosted.org/pyserial/pyserial_api.html
+https://docs.python.org/3/library/asyncio-task.html
