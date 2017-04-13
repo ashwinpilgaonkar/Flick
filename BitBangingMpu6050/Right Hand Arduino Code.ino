@@ -804,7 +804,7 @@ address=105;
   //nDevices = 0;
       if(flag==6)
       {
-        mpunumber5();
+        //mpunumber5();
         //delay(1000);
       }
       if(flag==7)
@@ -814,18 +814,18 @@ address=105;
       }
        if(flag==8)
        {
-        mpunumber3();
+        //mpunumber3();
         //delay(1000);
       }
        if(flag==9)
         {
-        mpunumber4();
+        //+mpunumber4();
         //delay(1000);
       }
        
        if(flag==10)
        {
-        mpunumber1();
+       // mpunumber1();
         flag=6;
         //delay(1000);
       }
@@ -1236,13 +1236,16 @@ void mpunumber1()
   Serial.print(unfiltered_gyro_angle_y, 2);
   Serial.print(F(","));
   Serial.print(unfiltered_gyro_angle_z, 2);*/
-   angle_x=(int)(angle_x*100)/100;
-  angle_y=(int)(angle_y*100)/100;
-  angle_z=(int)(angle_z*100)/100;
+ int x,y,z;
+  x=(int)(angle_x);
+  y=(int)(angle_y);
+  z=(int)(angle_z);
   mySerial.println(F("^"));             //Filtered angle
-  mySerial.println(angle_x, DEC);
-  mySerial.println(angle_y, DEC);
-  mySerial.println(angle_z, DEC);  
+  mySerial.print(x, DEC);
+  mySerial.print(",");
+  mySerial.print(y, DEC);
+  mySerial.print(",");
+  mySerial.print(z, DEC);
   // Delay so we don't swamp the serial port
  
          // nDevices++;
@@ -1436,13 +1439,17 @@ void mpunumber2()
   Serial.print(unfiltered_gyro_angle_y, 2);
   Serial.print(F(","));
   Serial.print(unfiltered_gyro_angle_z, 2);*/
-     angle_x=(int)(angle_x*100)/100;
-  angle_y=(int)(angle_y*100)/100;
-  angle_z=(int)(angle_z*100)/100;
+   int x,y,z;
+  x=(int)(angle_x);
+  y=(int)(angle_y);
+  z=(int)(angle_z);
+  String a=String(x);
+  String b=String(y);
+  String c=String(z);
   mySerial.println(F("#"));             //Filtered angle
-  mySerial.println(angle_x, DEC);
-  mySerial.println(angle_y, DEC);
-  mySerial.println(angle_z, DEC);
+  mySerial.println(a);
+  mySerial.println(b);
+  mySerial.println(c);
   
   
   // Delay so we don't swamp the serial port
@@ -1637,13 +1644,14 @@ void mpunumber3()
   Serial.print(unfiltered_gyro_angle_y, 2);
   Serial.print(F(","));
   Serial.print(unfiltered_gyro_angle_z, 2);*/
-  angle_x=(int)(angle_x*100)/100;
-  angle_y=(int)(angle_y*100)/100;
-  angle_z=(int)(angle_z*100)/100;
+ int x,y,z;
+  x=(int)(angle_x);
+  y=(int)(angle_y);
+  z=(int)(angle_z);
   mySerial.println(F("$"));             //Filtered angle
-  mySerial.println(angle_x, DEC);
-   mySerial.println(angle_y, DEC);
-    mySerial.println(angle_z, DEC);
+  mySerial.println(x, DEC);
+  mySerial.println(y, DEC);
+  mySerial.println(z, DEC);
   
   
   // Delay so we don't swamp the serial port
@@ -1839,13 +1847,14 @@ void mpunumber4()
   Serial.print(unfiltered_gyro_angle_y, 2);
   Serial.print(F(","));
   Serial.print(unfiltered_gyro_angle_z, 2);*/
- angle_x=(int)(angle_x*100)/100;
-  angle_y=(int)(angle_y*100)/100;
-  angle_z=(int)(angle_z*100)/100;
+int x,y,z;
+  x=(int)(angle_x);
+  y=(int)(angle_y);
+  z=(int)(angle_z);
   mySerial.println(F("%"));             //Filtered angle
-  mySerial.println(angle_x, DEC);
-  mySerial.println(angle_y, DEC);
-  mySerial.println(angle_z, DEC);
+  mySerial.println(x, DEC);
+  mySerial.println(y, DEC);
+  mySerial.println(z, DEC);
   
   // Delay so we don't swamp the serial port
   
@@ -2039,13 +2048,14 @@ void mpunumber5()
   Serial.print(unfiltered_gyro_angle_y, 2);
   Serial.print(F(","));
   Serial.print(unfiltered_gyro_angle_z, 2);*/
-  angle_x=(int)(angle_x*100)/100;
-  angle_y=(int)(angle_y*100)/100;
-  angle_z=(int)(angle_z*100)/100;
+  int x,y,z;
+  x=(int)(angle_x);
+  y=(int)(angle_y);
+  z=(int)(angle_z);
   mySerial.println(F("@"));             //Filtered angle
-  mySerial.println(angle_x, DEC);
-  mySerial.println(angle_y, DEC);
-  mySerial.println(angle_z, DEC);
+  mySerial.println(x, DEC);
+  mySerial.println(y, DEC);
+  mySerial.println(z, DEC);
   
   // Delay so we don't swamp the serial port
   
