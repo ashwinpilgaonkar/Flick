@@ -3,17 +3,20 @@ from PyQt5.QtWidgets import *
 from Voice.SpeechRecognition import listen
 import UI.MainWindow
 import Gesture.Database
-import Gesture.HIDEmulation
-from multiprocessing.pool import ThreadPool
+#import Gesture.HIDEmulation
 import threading
-import Bluetooth.Bluetooth
-from Voice.SelectTask import TaskSelection
+#from Bluetooth import *
+import asyncio
+from Voice.Likelyhood_Selection import bernoulli_Selection
+
+
 
 class MainWindow(QMainWindow, UI.MainWindow.Ui_MainWindow, QTableWidget):
 
     DropDownText=""
     values = None
     combo = list()
+    loop = asyncio.get_event_loop()
 
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
@@ -52,7 +55,7 @@ class MainWindow(QMainWindow, UI.MainWindow.Ui_MainWindow, QTableWidget):
     def ReadGestureButton_OnClick(self):
         print("Read Gesture")
         self.StatusLabel.setText("Reading...")
-        self.values = Bluetooth.Bluetooth.Bluetooth().captureGesture()
+        #self.values = Bluetooth.Bluetooth.Bluetooth().captureGesture()
 
     def CaptureGestureButton_OnClick(self):
         print("Capture Gesture")
@@ -99,14 +102,32 @@ class MainWindow(QMainWindow, UI.MainWindow.Ui_MainWindow, QTableWidget):
     def TalkButton_OnClick(self):
         #Convert listened speech to text
         self.VoiceLabel.setText("Listening...")
-        pool = ThreadPool(processes=1)
-        async_result = pool.apply_async(listen)
-        result_text, flag = async_result.get()
-        self.VoiceLabel.setText(result_text)
-        if flag != 1:
-            #TaskSelection(result_text)
-            thread = threading.Thread(target=TaskSelection, args=(result_text,))
-            thread.start()
+        future = asyncio.Future()
+        asyncio.ensure_future(listen(future))
+        future.add_done_callback(self.speech_recognition_complete)
+        thread = threading.Thread(target=self.speech_recognition_start, args=(future,))
+        thread.start()
+
+    def speech_recognition_start(self, future):
+        try:
+            self.loop.run_until_complete(future=future)
+        except:
+            self.VoiceLabel.setText("Speech recognition could not start")
+
+    def speech_recognition_complete(self, future):
+        try:
+            text = str(future.result())
+            if text == "1":
+                self.VoiceLabel.setText("Google failed to understand the audio.")
+            else:
+                self.VoiceLabel.setText(text)
+                bernoulli_Selection(text)
+        except:
+            self.VoiceLabel.setText("Something went wrong. Restart the application")
+
+        future.done()
+        return
+
 
 
 def main():
