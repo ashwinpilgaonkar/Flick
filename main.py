@@ -121,9 +121,17 @@ class MainWindow(QMainWindow, UI.MainWindow.Ui_MainWindow, QTableWidget):
                 self.VoiceLabel.setText("Google failed to understand the audio.")
             else:
                 self.VoiceLabel.setText(text)
-                bernoulli_Selection(text)
+                selection_list  = bernoulli_Selection(text)
+                print(selection_list)
+                self.progressBar_Search.setValue(selection_list[0] * 100)
+                self.progressBar_ScreenShot.setValue(selection_list[1] * 100)
+                self.progressBar_Type.setValue(selection_list[2] * 100)
+                self.progressBar_Youtube.setValue(selection_list[3] * 100)
+                self.progressBar_News.setValue(selection_list[4] * 100)
+                self.progressBar_Reminder.setValue(selection_list[5] * 100)
+                self.progressBar_email.setValue(selection_list[6] * 100)
         except:
-            self.VoiceLabel.setText("Something went wrong. Restart the application")
+             self.VoiceLabel.setText("Something went wrong. Restart the application")
 
         future.done()
         return
