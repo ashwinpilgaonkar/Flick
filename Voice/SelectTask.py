@@ -5,7 +5,6 @@ import os
 import time
 from Voice.Alarm import setReminder
 from Voice.Wikipedia import wikiSearch
-from Voice.SpeechRecognition import listen
 from Voice.GoogleTTS import speak
 from Voice.BingSearch import bingSearch
 from Voice.Youtube import playYouTube
@@ -106,7 +105,7 @@ def TaskSelection(text):
         print("Second Noun", indexNounSecondMax, valueNounSecond)
 
         if valueVerbFirst - valueVerbSecond <= LowConfidence:
-            learningFunc(verb, noun)
+            #learningFunc(verb, noun)
             '''switchTaskAtLowConfidence(indexVerbFirstMax)
             speak(" or ")
             switchTaskAtLowConfidence(indexVerbSecondMax)
@@ -143,7 +142,7 @@ def TaskSelection(text):
         else:
             switchExecuteTask(indexVerbFirstMax, text)
 
-def learningFunc(verb, noun):
+'''def learningFunc(verb, noun):
     speak("Learning mode enabled. Answer in yes or no.")
     for indexOfeachCategory in range(7):
         switchTaskAtLowConfidence(indexOfeachCategory)
@@ -175,7 +174,7 @@ def learningFunc(verb, noun):
                     Category[count]["nouns"].append(eachQueryNoun)
             break
 
-        else: speak(" or ")
+        else: speak(" or ")'''
 
 def checkVerbList(indexOfeachCategory, eachVerb):
     verbFlag = False
