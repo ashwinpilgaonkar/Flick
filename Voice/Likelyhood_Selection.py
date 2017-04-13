@@ -3,28 +3,28 @@ from Voice.SelectTask import *
 import numpy as np
 import math
 import json
-
+import logging
 
 Responses = {"search": ["who is donald trump", "what is cnc machine", "how to implement quicksort algorithm",
                          "can you search how to remove stop words", "what is the weather today"],
               "screenshot": ["take a screenshot"],
               "type": ["can you type hello how are you"],
-              "youtube": ["I want to hear peaceful music", "play me a song starboy"],
+              "youtube": ["I want to hear peaceful music", "play me a song starboy", "I want to watch a movie star wars"],
               "news": ["what is todays headlines", "tell me news about narendra modi"],
               "reminder": ["set an alarm at 8:30 pm", "remind me, I have a meeting at 8:00 pm"],
               "email": ["send an email to rashika bhargava"]
-              }
+            }
 
 # Questions = [ ["",""], ["",""], ["",""], ["",""], ["",""], ["",""], ["",""] ]
 
 Match_Table = {
-    "Interrogatives": ["who", "what", "how", "how", "", "what", "", "", "", "", "what", "", "", "", "", ""],
-    "Verbs": ["", "", "implement", "implement", "search", "", "type", "  write", "hear", "play", "", "tell", "set",
-              "put", "remind", "send"],
-    "Nouns": ["trump", "machine", "quicksort", "algorithm", "words", "weather", "", "", "", "starboy", "headline",
-              "narendra", "alarm", "alarm", "meeting", "email"],
-    "Class": ["search", "search", "search", "search", "search", "search", "type", "type", "youtube", "youtube", "news",
-              "news", "reminder", "reminder", "email"]
+    "Interrogatives": [],#["who", "what", "how", "how", "", "what", "", "", "", "", "what", "", "", "", "", ""],
+    "Verbs": [],#["", "", "implement", "implement", "search", "", "type", "  write", "hear", "play", "", "tell", "set",
+              #"put", "remind", "send"],
+    "Nouns": [],#["trump", "machine", "quicksort", "algorithm", "words", "weather", "", "", "", "starboy", "headline",
+              #"narendra", "alarm", "alarm", "meeting", "email"],
+    "Class": [],#["search", "search", "search", "search", "search", "search", "type", "type", "youtube", "youtube", "news",
+              #"news", "reminder", "reminder", "email"]
 }
 
 total_Num_Class = 7
@@ -46,14 +46,12 @@ def cal_Each_Column_Pro(queryWord="", className="search", key="Verbs"):
     document_Frequency = 0
     total_Num_Doc = 0
     index = 0
-    for eachClass in Match_Table["Class"]:
+    for eachClass in Match_Table["Class"] :
         if eachClass == className:
-
             total_Num_Doc += 1
             match_word = Match_Table[key][index]
-            if queryWord == match_word or SimilarityCheck(queryWord, match_word) > 0.7:
+            if queryWord == match_word:
                 document_Frequency += 1
-
         index += 1
 
     return (document_Frequency + 1) / (total_Num_Doc + total_Num_Class)
@@ -161,7 +159,8 @@ its itself let's me more most mustn't my myself no nor not of off on once only o
     stripped_Sentence = ""
     for eachWord in blob.words:
         if eachWord in StopWords.split():
-            print("Stopword: ", eachWord)
+            #print("Stopword: ", eachWord)
+            logging.info("Stopword found: ", eachWord)
         else:
             stripped_Sentence = stripped_Sentence + " " + eachWord
     return TextBlob(stripped_Sentence)
@@ -179,6 +178,8 @@ def GetInterrogatives(blob):
 
 def bernoulli_Selection(text):
     global Responses, Match_Table
+    auto_append(Responses)
+
     try:
         with open('Responses.json', 'r') as inputFile:
             Responses = json.load(inputFile)
@@ -269,28 +270,63 @@ def append_In_MatchTable(blob, className, text):
     lengths.append(len(verbs))
     lengths.append(len(interrogatives))
 
+    try:
+        last_Index = Match_Table["Interrogatives"].index(Match_Table["Interrogatives"][-1]) + 1
+    except:
+        last_Index = 0
+
     max_Length = max(lengths)
 
     for i in list(range(max_Length)):
         try:
-            Match_Table["Interrogatives"].append(interrogatives[i])
+            if interrogatives[i] in Match_Table["Interrogatives"] and className in Match_Table["Class"]:
+                Match_Table["Interrogatives"].insert(last_Index," ")
+            else:
+                Match_Table["Interrogatives"].insert(last_Index,interrogatives[i])
         except:
-            Match_Table["Interrogatives"].append("")
+            Match_Table["Interrogatives"].insert(last_Index," ")
+
         try:
-            Match_Table["Verbs"].append(verbs[i])
+            if verbs[i] in Match_Table["Verbs"] and className in Match_Table["Class"]:
+                Match_Table["Verbs"].insert(last_Index," ")
+            else:
+                Match_Table["Verbs"].insert(last_Index,verbs[i])
         except:
-            Match_Table["Verbs"].append("")
+            Match_Table["Verbs"].insert(last_Index," ")
+
         try:
-            Match_Table["Nouns"].append(nouns[i])
+            if nouns[i] in Match_Table["Nouns"] and className in Match_Table["Class"]:
+                Match_Table["Nouns"].insert(last_Index," ")
+            else:
+                Match_Table["Nouns"].insert(last_Index,nouns[i])
         except:
-            Match_Table["Nouns"].append("")
+            Match_Table["Nouns"].insert(last_Index," ")
 
-        Match_Table["Class"].append(className)
 
-    Responses[className].append(text)
+        Match_Table["Class"].insert(last_Index,className)
 
-   # print(Responses)
+        if Match_Table["Interrogatives"][i] == " " and Match_Table["Verbs"][i] == " "  and Match_Table["Nouns"][i] == " ":
+            Match_Table["Interrogatives"].remove(Match_Table["Interrogatives"][i])
+            Match_Table["Verbs"].remove(Match_Table["Verbs"][i])
+            Match_Table["Nouns"].remove(Match_Table["Nouns"][i])
+            Match_Table["Class"].remove(Match_Table["Class"][i])
 
+        #print(len(Match_Table["Interrogatives"]), len(Match_Table["Verbs"]), len(Match_Table["Nouns"]),len(Match_Table["Class"]))
+
+    if text in Responses[className]:
+        logging.info("Response found")
+    else:
+        Responses[className].append(text)
+
+    if len(Match_Table["Interrogatives"]) != len(Match_Table["Verbs"]) and len(Match_Table["Verbs"]) != len(Match_Table["Nouns"]) and len(Match_Table["Nouns"]) != len(Match_Table["Class"]):
+        logging.debug("Sync failed!")
+    #print(Match_Table["Interrogatives"], Match_Table["Verbs"], Match_Table["Nouns"], Match_Table["Class"])
+
+
+def auto_append(Responses):
+    for i in list(range(7)):
+        for eachText in Responses[ClassName[i]]:
+            append_In_MatchTable(blob=remove_StopWords(eachText), className=ClassName[i], text=eachText)
 
 ClassName = {
     0: "search",
@@ -309,8 +345,8 @@ class Rank:
 
 
 def main():
-    bernoulli_Selection("I want to hear pataka guddi")
-
+    bernoulli_Selection("send an email to a friend")
+    # Automate Responses
 
 if __name__ == '__main__':
     main()
