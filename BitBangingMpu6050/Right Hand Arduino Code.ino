@@ -10,7 +10,7 @@
 #include "SoftWire.h"
 
 #include <SoftwareSerial.h>
-SoftwareSerial mySerial(2, 3);
+SoftwareSerial mySerial(3, 2);
 
 SoftWire Wire = SoftWire();
 
