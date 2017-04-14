@@ -3,14 +3,13 @@
 #define SDA_PIN 4
 #define SCL_PORT PORTD
 #define SCL_PIN 5
-
 #define I2C_TIMEOUT 100
 #define I2C_FASTMODE 1
      
 #include "SoftWire.h"
 
 #include <SoftwareSerial.h>
-SoftwareSerial mySerial(2, 3);
+SoftwareSerial mySerial(3, 2);
 
 SoftWire Wire = SoftWire();
 
@@ -720,11 +719,9 @@ void setup(){
  
   while (!Serial);             // Leonardo: wait for serial monitor
   int i;
-  pinMode(12,OUTPUT);
-        digitalWrite(12,LOW);
-    for(i=6;i<=9;i++)
+    for(i=6;i<=10;i++)
     {
-      for(int j=6;j<=12;j++)
+      for(int j=6;j<=10;j++)
       {
         if(i!=j)
         {
@@ -779,6 +776,8 @@ void setup(){
   // Clear the 'sleep' bit to start the sensor.
   MPU6050_write_reg (MPU6050_PWR_MGMT_1, 0);
       mySerial.begin(115200);
+      Serial.println("Starting");
+      mySerial.println("Starting Bluetooth Module");
       calibrate_sensor1();
       set_last_read_angle_data(millis(), 0, 0, 0, 0, 0, 0, 0);
       calibrate_sensor2();
@@ -799,7 +798,9 @@ void loop(){
 byte error, address;
 address=105;
   //int nDevices;
-  
+  Serial.flush();
+  Serial.println(F("It is printing"));
+  mySerial.println("The HC-05 is working man");
   //Serial.println(F("Scanning I2C bus (7-bit addresses) ..."));
   //nDevices = 0;
       if(flag==6)
@@ -1062,26 +1063,22 @@ int MPU6050_write_reg(int reg, uint8_t data)
 
 void mpunumber1()
 {
-  mySerial.println("It is entering the Thumb Function");
-  for(int j=7;j<=9;j++)
+  
+    for(int j=6;j<=10;j++)
       {
         
         pinMode(j,OUTPUT);
         digitalWrite(j,LOW);
       
       }  
-      pinMode(12,OUTPUT);
-        digitalWrite(12,LOW);
-  pinMode(6,OUTPUT);
-        digitalWrite(6,HIGH);
+        pinMode(9,OUTPUT);
+        digitalWrite(9,HIGH);
     byte error, address;
     address=105;
     Wire.beginTransmission(address);
       error = Wire.endTransmission();
 
-      mySerial.println("The error is :");
-      mySerial.println(error);
-      if (error == 0)
+       if (error == 0)
         {                                                                           
           /*Serial.print("MPU number : ");
           Serial.println(flag-5); 
@@ -1239,7 +1236,8 @@ void mpunumber1()
   Serial.print(unfiltered_gyro_angle_y, 2);
   Serial.print(F(","));
   Serial.print(unfiltered_gyro_angle_z, 2);*/
-  mySerial.println(F("@ "));             //Filtered angle
+  mySerial.println("It has reached here : ");
+  mySerial.println(F("!"));             //Filtered angle
   mySerial.print(angle_x, DEC);
   mySerial.println(F(""));
   mySerial.print(angle_y, DEC);
@@ -1266,17 +1264,15 @@ void mpunumber1()
 
 void mpunumber2()
 {
-  for(int j=6;j<=9;j++)
+  for(int j=6;j<=10;j++)
       {
         
         pinMode(j,OUTPUT);
         digitalWrite(j,LOW);
       
       }  
-      pinMode(12,OUTPUT);
-        digitalWrite(12,LOW);
-  pinMode(7,OUTPUT);
-        digitalWrite(7,HIGH);
+  pinMode(8,OUTPUT);
+        digitalWrite(8,HIGH);
     byte error, address;
     address=105;
     Wire.beginTransmission(address);
@@ -1440,7 +1436,7 @@ void mpunumber2()
   Serial.print(unfiltered_gyro_angle_y, 2);
   Serial.print(F(","));
   Serial.print(unfiltered_gyro_angle_z, 2);*/
-  mySerial.println(F("#"));             //Filtered angle
+  mySerial.println(F("&"));             //Filtered angle
   mySerial.print(angle_x, DEC);
   mySerial.println(F(","));
   mySerial.print(angle_y, DEC);
@@ -1466,17 +1462,15 @@ void mpunumber2()
 
 void mpunumber3()
 {
-  for(int j=6;j<=9;j++)
+  for(int j=6;j<=10;j++)
       {
         
         pinMode(j,OUTPUT);
         digitalWrite(j,LOW);
       
       }  
-      pinMode(12,OUTPUT);
-        digitalWrite(12,LOW);
-  pinMode(8,OUTPUT);
-        digitalWrite(8,HIGH);
+  pinMode(7,OUTPUT);
+        digitalWrite(7,HIGH);
   byte error, address;
     address=105;
     Wire.beginTransmission(address);
@@ -1640,7 +1634,7 @@ void mpunumber3()
   Serial.print(unfiltered_gyro_angle_y, 2);
   Serial.print(F(","));
   Serial.print(unfiltered_gyro_angle_z, 2);*/
-  mySerial.println(F("$"));             //Filtered angle
+  mySerial.println(F("*"));             //Filtered angle
   mySerial.print(angle_x, DEC);
   mySerial.println(F(","));
   mySerial.print(angle_y, DEC);
@@ -1666,17 +1660,15 @@ void mpunumber3()
 
 void mpunumber4()
 {
-  for(int j=6;j<=8;j++)
+  for(int j=6;j<=10;j++)
       {
         
         pinMode(j,OUTPUT);
         digitalWrite(j,LOW);
       
       }  
-      pinMode(12,OUTPUT);
-        digitalWrite(12,LOW);
-  pinMode(9,OUTPUT);
-        digitalWrite(9,HIGH);
+  pinMode(6,OUTPUT);
+        digitalWrite(6,HIGH);
   byte error, address;
     address=105;
     Wire.beginTransmission(address);
@@ -1841,7 +1833,7 @@ void mpunumber4()
   Serial.print(unfiltered_gyro_angle_y, 2);
   Serial.print(F(","));
   Serial.print(unfiltered_gyro_angle_z, 2);*/
-  mySerial.println(F("% "));             //Filtered angle
+  mySerial.println(F("("));             //Filtered angle
   mySerial.print(angle_x, DEC);
   mySerial.println(F(","));
   mySerial.print(angle_y, DEC);
@@ -1874,10 +1866,8 @@ void mpunumber5()
         digitalWrite(j,LOW);
       
       }  
-      //pinMode(12,OUTPUT);
-        //digitalWrite(12,LOW);
-  pinMode(12,OUTPUT);
-        digitalWrite(12,HIGH);
+  pinMode(10,OUTPUT);
+        digitalWrite(10,HIGH);
   byte error, address;
     address=105;
     Wire.beginTransmission(address);
@@ -2041,7 +2031,7 @@ void mpunumber5()
   Serial.print(unfiltered_gyro_angle_y, 2);
   Serial.print(F(","));
   Serial.print(unfiltered_gyro_angle_z, 2);*/
-  mySerial.println(F("^"));             //Filtered angle
+  mySerial.println(F(")"));             //Filtered angle
   mySerial.print(angle_x, DEC);
   mySerial.println(F(","));
   mySerial.print(angle_y, DEC);
@@ -2078,17 +2068,15 @@ void calibrate_sensor1()
   float                 z_gyro = 0;
   accel_t_gyro_union    accel_t_gyro;
 
-for(int j=7;j<=9;j++)
+for(int j=6;j<=10;j++)
       {
         
         pinMode(j,OUTPUT);
         digitalWrite(j,LOW);
       
       }  
-      pinMode(12,OUTPUT);
-        digitalWrite(12,LOW);
-  pinMode(6,OUTPUT);
-        digitalWrite(6,HIGH);
+        pinMode(9,OUTPUT);
+        digitalWrite(9,HIGH);
   //Serial.println("Starting Calibration");
 
   // Discard the first set of values read from the IMU
@@ -2103,7 +2091,7 @@ for(int j=7;j<=9;j++)
     x_gyro += accel_t_gyro.value.x_gyro;
     y_gyro += accel_t_gyro.value.y_gyro;
     z_gyro += accel_t_gyro.value.z_gyro;
-    delay(100);
+    delay(10);
   }
   x_accel /= num_readings;
   y_accel /= num_readings;
@@ -2134,17 +2122,15 @@ void calibrate_sensor2()
   float                 z_gyro = 0;
   accel_t_gyro_union    accel_t_gyro;
 
-for(int j=6;j<=9;j++)
+for(int j=6;j<=10;j++)
       {
         
         pinMode(j,OUTPUT);
         digitalWrite(j,LOW);
       
       }  
-      pinMode(12,OUTPUT);
-        digitalWrite(12,LOW);
-  pinMode(7,OUTPUT);
-        digitalWrite(7,HIGH);
+  pinMode(8,OUTPUT);
+        digitalWrite(8,HIGH);
   //Serial.println("Starting Calibration");
 
   // Discard the first set of values read from the IMU
@@ -2159,7 +2145,7 @@ for(int j=6;j<=9;j++)
     x_gyro += accel_t_gyro.value.x_gyro;
     y_gyro += accel_t_gyro.value.y_gyro;
     z_gyro += accel_t_gyro.value.z_gyro;
-    delay(100);
+    delay(10);
   }
   x_accel /= num_readings;
   y_accel /= num_readings;
@@ -2187,17 +2173,15 @@ void calibrate_sensor3()
   float                 z_gyro = 0;
   accel_t_gyro_union    accel_t_gyro;
 
-for(int j=6;j<=9;j++)
+ for(int j=6;j<=10;j++)
       {
         
         pinMode(j,OUTPUT);
         digitalWrite(j,LOW);
       
       }  
-      pinMode(12,OUTPUT);
-        digitalWrite(12,LOW);
-  pinMode(8,OUTPUT);
-        digitalWrite(8,HIGH);
+  pinMode(7,OUTPUT);
+        digitalWrite(7,HIGH);
   //Serial.println("Starting Calibration");
 
   // Discard the first set of values read from the IMU
@@ -2212,7 +2196,7 @@ for(int j=6;j<=9;j++)
     x_gyro += accel_t_gyro.value.x_gyro;
     y_gyro += accel_t_gyro.value.y_gyro;
     z_gyro += accel_t_gyro.value.z_gyro;
-    delay(100);
+    delay(10);
   }
   x_accel /= num_readings;
   y_accel /= num_readings;
@@ -2239,18 +2223,15 @@ void calibrate_sensor4()
   float                 y_gyro = 0;
   float                 z_gyro = 0;
   accel_t_gyro_union    accel_t_gyro;
-
-for(int j=6;j<=9;j++)
+for(int j=6;j<=10;j++)
       {
         
         pinMode(j,OUTPUT);
         digitalWrite(j,LOW);
       
       }  
-      pinMode(12,OUTPUT);
-        digitalWrite(12,LOW);
-  pinMode(9,OUTPUT);
-        digitalWrite(9,HIGH);
+  pinMode(6,OUTPUT);
+        digitalWrite(6,HIGH);
   //Serial.println("Starting Calibration");
 
   // Discard the first set of values read from the IMU
@@ -2265,7 +2246,7 @@ for(int j=6;j<=9;j++)
     x_gyro += accel_t_gyro.value.x_gyro;
     y_gyro += accel_t_gyro.value.y_gyro;
     z_gyro += accel_t_gyro.value.z_gyro;
-    delay(100);
+    delay(10);
   }
   x_accel /= num_readings;
   y_accel /= num_readings;
@@ -2300,8 +2281,8 @@ for(int j=6;j<=9;j++)
         digitalWrite(j,LOW);
       
       }  
-  pinMode(12,OUTPUT);
-        digitalWrite(12,HIGH);
+  pinMode(10,OUTPUT);
+        digitalWrite(10,HIGH);
   //Serial.println("Starting Calibration");
 
   // Discard the first set of values read from the IMU
@@ -2333,5 +2314,6 @@ for(int j=6;j<=9;j++)
   base_y_gyro[4] = y_gyro;
   base_z_gyro[4] = z_gyro;
 }
+
 
 
