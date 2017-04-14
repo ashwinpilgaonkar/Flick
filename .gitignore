@@ -1,4 +1,6 @@
 BitBangingMpu6050/* linguist-vendored
+*.ino linguist-language=Python
+*.h linguist-language=Python
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
