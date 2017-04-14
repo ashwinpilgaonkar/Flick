@@ -1,5 +1,3 @@
-BitBangingMpu6050/* linguist-vendored
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -89,13 +87,3 @@ ENV/
 
 # Rope project settings
 .ropeproject
-
-GoogleSTTJson
-
-.idea/misc.xml
-.idea/workspace.xml
-*.xml
-.idea
-*.mp3
-
-Voice/IrisTemp.mp3
