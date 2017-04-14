@@ -218,12 +218,16 @@ def bernoulli_Selection(text):
 
     max_Similarity_Index = 0
     checkFlag = False
+
+    sim_list = [0,0,0,0,0,0,0]
     for i in list(range(6)):
         try:
             if i == 6:
                 similarity1 = match_Similarity_with_Resposes(ClassName[Objects[i].index], text)
                 if max_Similarity_Index < similarity1:
                     max_Similarity_Index = Objects[i].index
+                    checkFlag = True
+                    sim_list.insert(i,similarity1)
 
             elif Objects[i].probability == Objects[i + 1].probability or Objects[i].probability - Objects[
                         i + 1].probability <= 0.1:
@@ -237,6 +241,8 @@ def bernoulli_Selection(text):
                 elif max_Similarity_Index < similarity2:
                     max_Similarity_Index = Objects[i + 1].index
 
+                sim_list.insert(i, similarity1)
+                sim_list.insert(i+1,similarity2)
             else:
                 break
         except:
@@ -246,6 +252,7 @@ def bernoulli_Selection(text):
         append_In_MatchTable(blob, ClassName[max_Similarity_Index], text)
         switchExecuteTask(max_Similarity_Index, text)
     else:
+        sim_list[0] = 0.1
         switchExecuteTask(Objects[0].index, text)
 
     try:
@@ -259,6 +266,7 @@ def bernoulli_Selection(text):
     except:
         print("Could not write Match_Table.json")
 
+    return selection_list
 
 def append_In_MatchTable(blob, className, text):
     nouns = GetNoun(blob)
