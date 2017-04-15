@@ -1,10 +1,10 @@
-import traceback
-
 import serial
 from sys import platform as platform
 import serial.tools.list_ports
-import pyautogui
 import serial.threaded
+from pymouse import PyMouse
+import time
+import pyautogui as pa
 
 def getOS():
     port = "/dev/tty.Right-DevB"
@@ -23,153 +23,88 @@ def getOS():
 
     return port
 
-def bluetoothRight(data):
-    pass #if data is string c
+def bluetooth(serRight):
+    characters = "$#@^%"
 
-class Output(serial.threaded.Protocol):
+    m = PyMouse()
+    dim_x, dim_y = m.screen_size()
 
-    finger = ""
-    counter = 0
+    current_coor_x = dim_x
+    current_coor_y = dim_y
 
-    def connection_made(self, transport):
-        print("Connect_made")
-        self.transport = transport
-        print('port opened', transport)
-        transport.serial.rts = False
+    pre_coor_x = 0
+    pre_coor_y = 0
 
-    def data_received(self, data):
+    pre_time = time.time()
 
-        line = data.decode().replace("\r", ",").replace("\n", "")
+    sensitivity = 10000 * 1.5  # between
 
-        x = ""
-        y = ""
-        z = ""
-        fingerchange = "@#$%^"
-        length = len(line)
+    while True:
+        # Code for right hand
+        try:
+            line = serRight.readline()
+            line = line.decode()
+            line = line.strip('\r')
+            line = line.strip('\n')
 
-        print(data)
+            try:
+                if line[0] in characters:
+                    print(line[0])
+                    x = get_data(serRight)
+                    y = get_data(serRight) # Meter per seconds square
+                    z = get_data(serRight)
 
-        i = 0
-        while (i < length):
+                    pixel_accel_x = (x * 3779.5275591) /sensitivity #pixel per second square
+                    pixel_accel_y = (y * 3779.5275591) / sensitivity
+                    pixel_accel_z = (z * 3779.5275591) /sensitivity
 
-            if line[i] in fingerchange:
-                i = i + 2
-                counter = 0
-                x = ""
-                y = ""
-                z = ""
+                    #print("x: ", pixel_accel_x)
+                    #print("y: ", pixel_accel_y)
+                    #print("z: ", pixel_accel_z)
+                    curr_time = time.time()
+                    delta_time = curr_time - pre_time
+                    temp_dist_x = 0.5 * pixel_accel_x * delta_time *delta_time
+                    temp_dist_y = 0.5 * pixel_accel_y * delta_time *delta_time
 
-                while i < length and line[i] not in fingerchange and counter < 3:
+                    if temp_dist_x + pre_coor_x <= dim_x and temp_dist_x + pre_coor_x >= 0:
+                        current_coor_x = int(pre_coor_x + temp_dist_x) #* delta_time * delta_time
 
-                    if (line[i] == ","):
-                        counter = counter + 1
-                        i = i + 1
+                    if temp_dist_y + pre_coor_y <= dim_y and temp_dist_y + pre_coor_y >= 0:
+                        current_coor_y = int(pre_coor_y + temp_dist_y) #* delta_time * delta_time
 
-                        if (counter == 3) or i>=length:
-                            break
+                    m.move(current_coor_x, current_coor_y)
+                    print(current_coor_x, "\t",current_coor_y)
 
-                    if (counter == 0):
-                        x = x + line[i]
+                    pre_coor_x = current_coor_x
+                    pre_coor_y = current_coor_y
 
-                    if (counter == 1):
-                        y = y + line[i]
+                    pre_time = curr_time
+            except:
+                pass
+        except:
+            return 1
 
-                    if (counter == 2):
-                        z = z + line[i]
-
-                    i = i + 1
-
-                #print("X: " + x)
-                print("Y: " + y)
-                #print("Z: " + z)
-
-                try:
-                    x = int(x)
-                    y = int(y)
-
-                    '''
-                    if(x>15):
-                        pyautogui.moveRel(x, y, duration=0)
-
-                    else:
-                        pyautogui.moveRel(-x, -y, duration=0)
-                    '''
-
-                except:
-                    continue
-
-            else:
-                i = i + 1
-
-    '''
-        if(data.decode()[0]=="@"):
-            self.finger = "@"
-            self.counter=0
-            print("Thumb")
-
-        if(data.decode()[0]=="#"):
-            self.finger = "#"
-            self.counter = 0
-            print("Index")
-
-        if(data.decode()[0]=="$"):
-            self.finger = "$"
-            self.counter = 0
-            print("Middle")
-
-        if(data.decode()[0]=="%"):
-            self.finger = "%"
-            self.counter = 0
-            print("Ring")
-
-        if(data.decode()[0]=="^"):
-            self.finger = "^"
-            self.counter = 0
-            print("Little")
-        '''
-
-    '''
-        if(self.finger=="@") and self.counter<3:
-
-            if(float(data.decode())>0):
-                pyautogui.moveRel(2, 3, duration=0)
-
-            else:
-                pyautogui.moveRel(-2, -3, duration=0)
-
-            self.counter = self.counter+1
-
-        if(data.decode()[0]=="@"):
-            self.finger = "@"
-            self.counter=0
-
-        if(data.decode()[0]=="#"):
-            self.finger = "#"
-            self.counter = 0
-
-        if(data.decode()[0]=="$"):
-            self.finger = "$"
-            self.counter = 0
-
-        if(data.decode()[0]=="%"):
-            self.finger = "%"
-            self.counter = 0
-
-        if(data.decode()[0]=="^"):
-            self.finger = "^"
-            self.counter = 0
-
-    def connection_lost(self, exc):
-        print('port closed')
-        traceback.print_exc(0)
-    '''
-
+def get_data(ser):
+    line = ser.readline()
+    line = line.decode()
+    line = line.strip('\r')
+    line = line.strip('\n')
+    try:
+        return int(line)
+    except: return 0
 
 def main():
-    ser = serial.Serial(getOS(), baudrate=115200, timeout=1)
-
-    protocol = serial.threaded.ReaderThread(ser, Output)
-    protocol.run()
+    for i in list(range(5)):
+        try:
+            flag = 0
+            serRight = serial.Serial(getOS(), baudrate=115200, timeout=1)
+            flag = bluetooth(serRight)
+            if flag != 1:
+                break
+            print("device failed to connect. Reconnecting....")
+        except:
+            pass
+    print("Failed to reconnect")
 
 if __name__ == '__main__':
     main()
