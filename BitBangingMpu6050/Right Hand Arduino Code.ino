@@ -6,11 +6,17 @@
 
 #define I2C_TIMEOUT 100
 #define I2C_FASTMODE 1
+
+//% = Pinky Finger
+// @ = Thumb
+// ^ = Index
+// # = Middle
+// $ = Ring 
      
 #include "SoftWire.h"
 
 #include <SoftwareSerial.h>
-SoftwareSerial mySerial(2, 3);
+SoftwareSerial mySerial(3, 2);
 
 SoftWire Wire = SoftWire();
 
@@ -1243,15 +1249,15 @@ void mpunumber1()
   String a=String(x);
   String b=String(y);
   String c=String(z);
-  String acc_x=String(accel_t_gyro.value.x_accel);
-  String acc_y=String(accel_t_gyro.value.y_accel);
-  String acc_z=String(accel_t_gyro.value.z_accel);
+  String acc_x=String((int)accel_t_gyro.value.x_accel);
+  String acc_y=String((int)accel_t_gyro.value.y_accel);
+  String acc_z=String((int)accel_t_gyro.value.z_accel);
 
 
   mySerial.println(F("^")); 
-  mySerial.print(acc_x);
-    mySerial.print(acc_y);
-  mySerial.print(acc_z);
+  mySerial.println(acc_x);
+    mySerial.println(acc_y);
+  mySerial.println(acc_z);
   mySerial.println(a);
   mySerial.println(b);
   mySerial.println(c);
@@ -1455,15 +1461,15 @@ void mpunumber2()
   String a=String(x);
   String b=String(y);
   String c=String(z);
-  String acc_x=String(accel_t_gyro.value.x_accel);
-  String acc_y=String(accel_t_gyro.value.y_accel);
-  String acc_z=String(accel_t_gyro.value.z_accel);
+  String acc_x=String((int)accel_t_gyro.value.x_accel);
+  String acc_y=String((int)accel_t_gyro.value.y_accel);
+  String acc_z=String((int)accel_t_gyro.value.z_accel);
 
 
   mySerial.println(F("#")); 
-  mySerial.print(acc_x);
-    mySerial.print(acc_y);
-  mySerial.print(acc_z);
+  mySerial.println(acc_x);
+    mySerial.println(acc_y);
+  mySerial.println(acc_z);
   mySerial.println(a);
   mySerial.println(b);
   mySerial.println(c);
@@ -1670,15 +1676,15 @@ int x,y,z;
   String a=String(x);
   String b=String(y);
   String c=String(z);
-  String acc_x=String(accel_t_gyro.value.x_accel);
-  String acc_y=String(accel_t_gyro.value.y_accel);
-  String acc_z=String(accel_t_gyro.value.z_accel);
+  String acc_x=String((int)accel_t_gyro.value.x_accel);
+  String acc_y=String((int)accel_t_gyro.value.y_accel);
+  String acc_z=String((int)accel_t_gyro.value.z_accel);
 
 
   mySerial.println(F("$")); 
-  mySerial.print(acc_x);
-    mySerial.print(acc_y);
-  mySerial.print(acc_z);
+  mySerial.println(acc_x);
+    mySerial.println(acc_y);
+  mySerial.println(acc_z);
   mySerial.println(a);
   mySerial.println(b);
   mySerial.println(c);
@@ -1884,15 +1890,15 @@ int x,y,z;
   String a=String(x);
   String b=String(y);
   String c=String(z);
-  String acc_x=String(accel_t_gyro.value.x_accel);
-  String acc_y=String(accel_t_gyro.value.y_accel);
-  String acc_z=String(accel_t_gyro.value.z_accel);
+  String acc_x=String((int)accel_t_gyro.value.x_accel);
+  String acc_y=String((int)accel_t_gyro.value.y_accel);
+  String acc_z=String((int)accel_t_gyro.value.z_accel);
 
 
   mySerial.println(F("%")); 
-  mySerial.print(acc_x);
-    mySerial.print(acc_y);
-  mySerial.print(acc_z);
+  mySerial.println(acc_x);
+    mySerial.println(acc_y);
+  mySerial.println(acc_z);
   mySerial.println(a);
   mySerial.println(b);
   mySerial.println(c);
@@ -2096,15 +2102,15 @@ int x,y,z;
   String a=String(x);
   String b=String(y);
   String c=String(z);
-  String acc_x=String(accel_t_gyro.value.x_accel);
-  String acc_y=String(accel_t_gyro.value.y_accel);
-  String acc_z=String(accel_t_gyro.value.z_accel);
+  String acc_x=String((int)accel_t_gyro.value.x_accel);
+  String acc_y=String((int)accel_t_gyro.value.y_accel);
+  String acc_z=String((int)accel_t_gyro.value.z_accel);
 
 
   mySerial.println(F("@")); 
-  mySerial.print(acc_x);
-    mySerial.print(acc_y);
-  mySerial.print(acc_z);
+  mySerial.println(acc_x);
+    mySerial.println(acc_y);
+  mySerial.println(acc_z);
   mySerial.println(a);
   mySerial.println(b);
   mySerial.println(c);
