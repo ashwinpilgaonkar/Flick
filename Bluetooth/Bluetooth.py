@@ -4,6 +4,105 @@ import serial.tools.list_ports
 import serial.threaded
 from pymouse import PyMouse
 
+data_repository = {
+
+    "id" : [],
+    "name" : [],
+    "shortcuts" : [],
+
+    "max_acc_@R_x" : [],
+    "max_acc_@R_y" : [],
+    "max_acc_@R_z": [],
+    "min_acc_@R_x": [],
+    "min_acc_@R_y": [],
+    "min_acc_@R_z": [],
+
+    "start_angle_@R_x":[],
+    "start_angle_@R_y": [],
+    "start_angle_@R_z": [],
+
+    "end_angle_@R_x": [],
+    "end_angle_@R_y": [],
+    "end_angle_@R_z": [],
+
+    "time_period": []
+}
+
+right_data = {
+    "acc_@R_x": [],
+    "acc_@R_y": [],
+    "acc_@R_z": [],
+    "angle_@R_x": [],
+    "angle_@R_y": [],
+    "angle_@R_z": [],
+
+    "acc_^R_x": [],
+    "acc_^R_y": [],
+    "acc_^R_z": [],
+    "angle_^R_x": [],
+    "angle_^R_y": [],
+    "angle_^R_z": [],
+
+    "acc_#R_x": [],
+    "acc_#R_y": [],
+    "acc_#R_z": [],
+    "angle_#R_x": [],
+    "angle_#R_y": [],
+    "angle_#R_z": [],
+
+    "acc_$R_x": [],
+    "acc_$R_y": [],
+    "acc_$R_z": [],
+    "angle_$R_x": [],
+    "angle_$R_y": [],
+    "angle_$R_z": [],
+
+    "acc_%R_x": [],
+    "acc_%R_y": [],
+    "acc_%R_z": [],
+    "angle_%R_x": [],
+    "angle_%R_y": [],
+    "angle_%R_z": [],
+
+}
+
+left_data = {
+    "acc_@L_x": 0,
+    "acc_@L_y": 0,
+    "acc_@L_z": 0,
+    "angle_@L_x": 0,
+    "angle_@L_y": 0,
+    "angle_@L_z": 0,
+
+    "acc_^L_x": 0,
+    "acc_^L_y": 0,
+    "acc_^L_z": 0,
+    "angle_^L_x": 0,
+    "angle_^L_y": 0,
+    "angle_^L_z": 0,
+
+    "acc_#L_x": 0,
+    "acc_#L_y": 0,
+    "acc_#L_z": 0,
+    "angle_#L_x": 0,
+    "angle_#L_y": 0,
+    "angle_#L_z": 0,
+
+    "acc_$L_x": 0,
+    "acc_$L_y": 0,
+    "acc_$L_z": 0,
+    "angle_$L_x": 0,
+    "angle_$L_y": 0,
+    "angle_$L_z": 0,
+
+    "acc_%L_x": 0,
+    "acc_%L_y": 0,
+    "acc_%L_z": 0,
+    "angle_%L_x": 0,
+    "angle_%L_y": 0,
+    "angle_%L_z": 0,
+
+}
 
 def get_OS_Right():
     port = "/dev/tty.Right-DevB"
@@ -39,82 +138,6 @@ def get_OS_Left():
 
     return port
 
-right_data = {
-    "acc_@_x": 0,
-    "acc_@_y": 0,
-    "acc_@_z": 0,
-    "angle_@_x": 0,
-    "angle_@_y": 0,
-    "angle_@_z": 0,
-
-    "acc_^_x": 0,
-    "acc_^_y": 0,
-    "acc_^_z": 0,
-    "angle_^_x": 0,
-    "angle_^_y": 0,
-    "angle_^_z": 0,
-
-    "acc_#_x": 0,
-    "acc_#_y": 0,
-    "acc_#_z": 0,
-    "angle_#_x": 0,
-    "angle_#_y": 0,
-    "angle_#_z": 0,
-
-    "acc_$_x": 0,
-    "acc_$_y": 0,
-    "acc_$_z": 0,
-    "angle_$_x": 0,
-    "angle_$_y": 0,
-    "angle_$_z": 0,
-
-    "acc_%_x": 0,
-    "acc_%_y": 0,
-    "acc_%_z": 0,
-    "angle_%_x": 0,
-    "angle_%_y": 0,
-    "angle_%_z": 0,
-
-}
-
-left_data = {
-    "acc_@_x": 0,
-    "acc_@_y": 0,
-    "acc_@_z": 0,
-    "angle_@_x": 0,
-    "angle_@_y": 0,
-    "angle_@_z": 0,
-
-    "acc_^_x": 0,
-    "acc_^_y": 0,
-    "acc_^_z": 0,
-    "angle_^_x": 0,
-    "angle_^_y": 0,
-    "angle_^_z": 0,
-
-    "acc_#_x": 0,
-    "acc_#_y": 0,
-    "acc_#_z": 0,
-    "angle_#_x": 0,
-    "angle_#_y": 0,
-    "angle_#_z": 0,
-
-    "acc_$_x": 0,
-    "acc_$_y": 0,
-    "acc_$_z": 0,
-    "angle_$_x": 0,
-    "angle_$_y": 0,
-    "angle_$_z": 0,
-
-    "acc_%_x": 0,
-    "acc_%_y": 0,
-    "acc_%_z": 0,
-    "angle_%_x": 0,
-    "angle_%_y": 0,
-    "angle_%_z": 0,
-
-}
-
 def bluetooth(serRight):
     while True:
         # %: Pinky finger, ^: index finger, @: thumb, $: ring
@@ -126,45 +149,45 @@ def bluetooth(serRight):
 
             try:
                 if line[0] == "@":              #THUMB
-                    right_data["acc_@_x"] = get_data(serRight)
-                    right_data["acc_@_y"] = get_data(serRight)  # Meter per seconds square
-                    right_data["acc_@_z"] = get_data(serRight)
-                    right_data["angle_@_x"] = get_data(serRight)
-                    right_data["angle_@_y"] = get_data(serRight) # Angle in degrees
-                    right_data["angle_@_z"] = get_data(serRight)
+                    right_data["acc_@R_x"] = get_data(serRight)
+                    right_data["acc_@R_y"] = get_data(serRight)  # Meter per seconds square
+                    right_data["acc_@R_z"] = get_data(serRight)
+                    right_data["angle_@R_x"] = get_data(serRight)
+                    right_data["angle_@R_y"] = get_data(serRight) # Angle in degrees
+                    right_data["angle_@R_z"] = get_data(serRight)
 
                 elif line[0] == "^":            #INDEX FINGER
-                    right_data["acc_^_x"] = get_data(serRight)
-                    right_data["acc_^_y"] = get_data(serRight)  # Meter per seconds square
-                    right_data["acc_^_z"] = get_data(serRight)
-                    right_data["angle_^_x"] = get_data(serRight)
-                    right_data["angle_^_y"] = get_data(serRight)  # Angle in degrees
-                    right_data["angle_^_z"] = get_data(serRight)
+                    right_data["acc_^R_x"] = get_data(serRight)
+                    right_data["acc_^R_y"] = get_data(serRight)  # Meter per seconds square
+                    right_data["acc_^R_z"] = get_data(serRight)
+                    right_data["angle_^R_x"] = get_data(serRight)
+                    right_data["angle_^R_y"] = get_data(serRight)  # Angle in degrees
+                    right_data["angle_^R_z"] = get_data(serRight)
 
 
                 elif line[0] == "#":            #MIDDLE FINGER
-                    right_data["acc_#_x"] = get_data(serRight)
-                    right_data["acc_#_y"] = get_data(serRight)  # Meter per seconds square
-                    right_data["acc_#_z"] = get_data(serRight)
-                    right_data["angle_#_x"] = get_data(serRight)
-                    right_data["angle_#_y"] = get_data(serRight)  # Angle in degrees
-                    right_data["angle_#_z"] = get_data(serRight)
+                    right_data["acc_#R_x"] = get_data(serRight)
+                    right_data["acc_#R_y"] = get_data(serRight)  # Meter per seconds square
+                    right_data["acc_#R_z"] = get_data(serRight)
+                    right_data["angle_#R_x"] = get_data(serRight)
+                    right_data["angle_#R_y"] = get_data(serRight)  # Angle in degrees
+                    right_data["angle_#R_z"] = get_data(serRight)
 
                 elif line[0] == "$":            #RING FINGER
-                    right_data["acc_$_x"] = get_data(serRight)
-                    right_data["acc_$_y"] = get_data(serRight)  # Meter per seconds square
-                    right_data["acc_$_z"] = get_data(serRight)
-                    right_data["angle_$_x"] = get_data(serRight)
-                    right_data["angle_$_y"] = get_data(serRight)  # Angle in degrees
-                    right_data["angle_$_z"] = get_data(serRight)
+                    right_data["acc_$R_x"] = get_data(serRight)
+                    right_data["acc_$R_y"] = get_data(serRight)  # Meter per seconds square
+                    right_data["acc_$R_z"] = get_data(serRight)
+                    right_data["angle_$R_x"] = get_data(serRight)
+                    right_data["angle_$R_y"] = get_data(serRight)  # Angle in degrees
+                    right_data["angle_$R_z"] = get_data(serRight)
 
                 elif line[0] == "%":            #PINKY FINGER
-                    right_data["acc_%_x"] = get_data(serRight)
-                    right_data["acc_%_y"] = get_data(serRight)  # Meter per seconds square
-                    right_data["acc_%_z"] = get_data(serRight)
-                    right_data["angle_%_x"] = get_data(serRight)
-                    right_data["angle_%_y"] = get_data(serRight)  # Angle in degrees
-                    right_data["angle_%_z"] = get_data(serRight)
+                    right_data["acc_%R_x"] = get_data(serRight)
+                    right_data["acc_%R_y"] = get_data(serRight)  # Meter per seconds square
+                    right_data["acc_%R_z"] = get_data(serRight)
+                    right_data["angle_%R_x"] = get_data(serRight)
+                    right_data["angle_%R_y"] = get_data(serRight)  # Angle in degrees
+                    right_data["angle_%R_z"] = get_data(serRight)
 
             except:
                 pass
