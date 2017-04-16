@@ -775,7 +775,7 @@ void setup(){
  
   // Clear the 'sleep' bit to start the sensor.
   MPU6050_write_reg (MPU6050_PWR_MGMT_1, 0);
-      mySerial.begin(115200);
+      mySerial.begin(230400);
       Serial.println("Starting");
       mySerial.println("Starting Bluetooth Module");
       calibrate_sensor1();
@@ -810,23 +810,23 @@ address=105;
       }
       if(flag==7)
       {
-        mpunumber2();
+       // mpunumber2();
         //delay(1000);
       }
        if(flag==8)
        {
-        mpunumber3();
+       // mpunumber3();
         //delay(1000);
       }
        if(flag==9)
         {
-        mpunumber4();
+        //mpunumber4();
         //delay(1000);
       }
        
        if(flag==10)
        {
-        mpunumber5();
+       // mpunumber5();
         flag=6;
         //delay(1000);
       }
