@@ -1,11 +1,16 @@
 //Flick Project
 #define SDA_PORT PORTD
-#define SDA_PIN 4
+#define SDA_PIN 5
 #define SCL_PORT PORTD
-#define SCL_PIN 5
+#define SCL_PIN 4
 #define I2C_TIMEOUT 100
 #define I2C_FASTMODE 1
-     
+
+// ! = Thumb
+// & = Index Finger
+// * = Middle Finger
+// ( = Ring Finger
+// ) = Pinky Finger
 #include "SoftWire.h"
 
 #include <SoftwareSerial.h>
@@ -799,8 +804,6 @@ byte error, address;
 address=105;
   //int nDevices;
   Serial.flush();
-  Serial.println(F("It is printing"));
-  mySerial.println("The HC-05 is working man");
   //Serial.println(F("Scanning I2C bus (7-bit addresses) ..."));
   //nDevices = 0;
       if(flag==6)
@@ -810,23 +813,23 @@ address=105;
       }
       if(flag==7)
       {
-       // mpunumber2();
+       mpunumber2();
         //delay(1000);
       }
        if(flag==8)
        {
-       // mpunumber3();
+        mpunumber3();
         //delay(1000);
       }
        if(flag==9)
         {
-        //mpunumber4();
+        mpunumber4();
         //delay(1000);
       }
        
        if(flag==10)
        {
-       // mpunumber5();
+        mpunumber5();
         flag=6;
         //delay(1000);
       }
@@ -1077,7 +1080,8 @@ void mpunumber1()
     address=105;
     Wire.beginTransmission(address);
       error = Wire.endTransmission();
-
+    mySerial.println("The error is : ");
+    mySerial.println(error);
        if (error == 0)
         {                                                                           
           /*Serial.print("MPU number : ");
@@ -1277,7 +1281,8 @@ void mpunumber2()
     address=105;
     Wire.beginTransmission(address);
       error = Wire.endTransmission();
-      
+       mySerial.println("The error is : ");
+    mySerial.println(error);
       if (error == 0)
         {
           /*Serial.print("MPU number : ");
@@ -1475,7 +1480,8 @@ void mpunumber3()
     address=105;
     Wire.beginTransmission(address);
       error = Wire.endTransmission();
-      
+       mySerial.println("The error is : ");
+    mySerial.println(error);
       if (error == 0)
         {
           /*Serial.print("MPU number : ");
@@ -1673,7 +1679,8 @@ void mpunumber4()
     address=105;
     Wire.beginTransmission(address);
       error = Wire.endTransmission();
-      
+       mySerial.println("The error is : ");
+    mySerial.println(error);
       if (error == 0)
         {
           /*Serial.print("MPU number : ");
@@ -1872,7 +1879,8 @@ void mpunumber5()
     address=105;
     Wire.beginTransmission(address);
       error = Wire.endTransmission();
-      
+       mySerial.println("The error is : ");
+    mySerial.println(error);
       if (error == 0)
         {
           /*Serial.print("MPU number : ");
