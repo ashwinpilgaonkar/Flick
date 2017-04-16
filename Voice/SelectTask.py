@@ -5,11 +5,13 @@ import os
 import time
 from Voice.Alarm import setReminder
 from Voice.Wikipedia import wikiSearch
+from Voice.SpeechRecognition import listen
 from Voice.GoogleTTS import speak
 from Voice.BingSearch import bingSearch
 from Voice.Youtube import playYouTube
 from Voice.GoogleNewsParser import retrieveNews
 from Voice.Alarm import setReminder
+import re
 
 Category = [{"verbs": ["Search","Find","browse","open"],  "nouns":[]},
             {"verbs":["Scroll","up","down", "move"],    "nouns":["screen","scroll", "bar"]},
@@ -18,6 +20,14 @@ Category = [{"verbs": ["Search","Find","browse","open"],  "nouns":[]},
             {"verbs":["Read","speak","dictate","say", "tell"],  "nouns":["news","document, headlines"]},
             {"verbs":["Remind","set"],  "nouns":["alarm","reminder","time"]},
             {"verbs":["Send","forward","mail"], "nouns":["mail","document"]}]
+
+Number = {'one' : 1,'two' : 2,'three': 3,'four' : 4,'five' : 5,'six' : 6, 'seven' : 7,'eight' : 8,'nine' : 9,'ten' : 10,
+          'eleven': 11,'twelve': 12,'thirteen': 13,'fourteen': 14,'fifteen' : 15,'sixteen': 16, 'seventeen': 17,'eighteen': 18,'nineteen': 19,'twenty': 20,
+          'twenty-one' : 21,'twenty-two' : 22,'twenty-three': 23,'twenty-four' : 24,'twenty-five' : 25,'twenty-six' : 26, 'twenty-seven' : 27,'twenty-eight' : 28,'twenty-nine' : 29,'thirty' : 30,
+          'thirty-one' : 31,'thirty-two' : 32,'thirty-three': 33,'thirty-four' : 34,'thirty-five' : 35,'thirty-six' : 36, 'thirty-seven' : 37,'thirty-eight' : 38,'thirty-nine' : 39,'forty' : 40,
+          'forty-one' : 41,'forty-two' : 42,'forty-three': 43,'forty-four' : 44,'forty-five' : 45,'forty-six' : 46, 'forty-seven' : 47,'forty-eight' : 48,'forty-nine' : 49,'fifty' : 50,
+          'fifty-one' : 51,'fifty-two' : 52,'fifty-three': 53,'fifty-four' : 54,'fifty-five' : 55,'fifty-six' : 56, 'fifty-seven' : 57,'fifty-eight' : 58,'fifty-nine' : 59,'sixty' : 60}
+
 
 LowConfidence = 0.1
 
@@ -105,7 +115,7 @@ def TaskSelection(text):
         print("Second Noun", indexNounSecondMax, valueNounSecond)
 
         if valueVerbFirst - valueVerbSecond <= LowConfidence:
-            #learningFunc(verb, noun)
+            learningFunc(verb, noun)
             '''switchTaskAtLowConfidence(indexVerbFirstMax)
             speak(" or ")
             switchTaskAtLowConfidence(indexVerbSecondMax)
@@ -142,7 +152,7 @@ def TaskSelection(text):
         else:
             switchExecuteTask(indexVerbFirstMax, text)
 
-'''def learningFunc(verb, noun):
+def learningFunc(verb, noun):
     speak("Learning mode enabled. Answer in yes or no.")
     for indexOfeachCategory in range(7):
         switchTaskAtLowConfidence(indexOfeachCategory)
@@ -174,7 +184,7 @@ def TaskSelection(text):
                     Category[count]["nouns"].append(eachQueryNoun)
             break
 
-        else: speak(" or ")'''
+        else: speak(" or ")
 
 def checkVerbList(indexOfeachCategory, eachVerb):
     verbFlag = False
@@ -233,7 +243,8 @@ def switchTaskAtLowConfidence(x):
     else: speak("I am sorry I miscalculated something. Can you please speak again ?")
 
 #TaskSelection("I want to hear peacful music")
-
+line_recognized = "Who is Rashika Bhargava "
+blob = TextBlob(line_recognized)
 
 def Askwords(blob):
    # print(blob.words)
@@ -246,111 +257,202 @@ def Askwords(blob):
         #Bing search
 
 
-'''def Alarm(blob):
+    #under construction------------------------------->
+def Alarm(blob):
+    print(blob.tags)
+    for eachWord in blob.words:
+        if eachWord in Number:
+            blob.words = [w.replace(eachWord,str(Number[eachWord])) for w in blob.words] #listcomprehensions
+            #print(blob.words)
+        else:
+            continue
+    new_sentence = ' '.join(blob.words)
+    blob = TextBlob(new_sentence)
+    print(blob.tags)
+    count = 0
+    time_nums = []
     for eachTag in blob.tags:
-        if "CD" == eachTag[1]:
-            dt = list(time.localtime())
-            currenthour = dt[3]
-            currentminute = dt[4]
-            tobeSet = eachTag[0]
-            value = int(tobeSet)
-            if len(tobeSet) == 1 or len(tobeSet) == 2:
-                if "am" == eachTag[0]:
-                    setReminder(value , 0)
-                elif "pm" == eachTag[0]:
-                    value = value + 12
-                    if value == 24:
-                        setReminder(0, 0)
-                    else:
-                        setReminder(value + 12, 0)
+        if "am" == eachTag[0] or "A.M" == eachTag[0]:
+            for eachTag in blob.tags:
+                if "CD" == eachTag[1]:
+                    time_nums.append(eachTag[0])
+                    count+=1
+            print(time_nums)
+            print(count)
+            if count == 1:
+                if ':' in time_nums[0]:
+                    hours, minutes = map(int, time_nums[0].split(':'))
+                    setReminder(hours,minutes,"Alarm set")
                 else:
-                    if currenthour > value :
-                        setReminder(value,0)
-                    elif currenthour < value :
-                        value = value + 12
-                        if value == 24:
-                            setReminder(0,0)
-                        else:
-                            setReminder(value ,0)
+                    hours = int(time_nums[0])
+                    if(hours == 12):
+                        setReminder(00,00,"Alarm set")
                     else:
-                        print("Please specify the minutes too")
-            elif len(tobeSet) == 3:
+                        print("alarm set for", hours)
+                        setReminder(hours,00,"Alarm set")
 
-                hour = tobeSet[0]
-                minutes = tobeSet[1] + tobeSet[2]
-
-                if "am" == eachTag[0]:
-                    setReminder(int(hour),int(minutes))
-
-                elif "pm" == eachTag[0]:
-                    setReminder(int(hour) + 12 , int(minutes))
+            elif count == 2:
+                hours = int(time_nums[0])
+                minutes = int(time_nums[1])
+                if (hours == 12):
+                    setReminder(00,minutes, "Alarm set")
                 else:
-                    if currenthour > int(hour):
-                        setReminder(int(hour), int(minutes))
-                    elif currenthour < int(hour):
-                        newHour = int(hour) + 12
-                        if newHour == 24:
-                            setReminder(0, 0)
-                        else:
-                            setReminder(newHour,int(minutes))
-                            print("alarm set")
+                    setReminder(hours,minutes,"Alarm set")
+            else:#when count comes out to be more than two
+                print("Time was not specified correctly. Specfiy the time again")
+                #listen()
+        elif "pm" == eachTag[0] or "P.M" == eachTag[0]:
+            for eachTag in blob.tags:
+                if "CD" == eachTag[1]:
+                    time_nums.append(eachTag[0])
+                    count+=1
+            print(time_nums)
+            print(count)
+            if count == 1:
+                if ':' in time_nums[0]:
+                    hours, minutes = map(int, time_nums[0].split(':'))
+                    if hours >= 12 and hours < 24 and minutes <= 60:
+                        setReminder(hours,minutes,"Alarm set")
+                    elif hours<12 and minutes <= 60:
+                        setReminder(hours + 12,minutes,"Alarm set")
                     else:
-                        if currentminute > int(minutes):
-                            setReminder(int(hour) +12,int(minutes))
-                        elif currentminute < int(minutes):
-                            setReminder(int(hour),int(minutes))
-                        else:
-                            print("Please specify am or pm")
-
-            elif len(tobeSet) == 4:
-                hour = tobeSet[0] + tobeSet[1]
-                minutes = tobeSet[2] + tobeSet[3]
-                if "am" == eachTag[0]:
-                    if hour == '12':
-                        setReminder(0,int(minutes))
-                    elif int(hour) < 12:
-                        setReminder(int(hour),int(minutes))
-                    else:
-                        print("Please give correct time")
-                elif "pm" == eachTag[0]:
-                    convertedhour = int(hour) + 12
-                    if convertedhour == 24:
-                        setReminder(0,int(minutes))
-                    else:
-                        setReminder(convertedhour , int(minutes))
+                        print("Please specify a correct time")
+            elif count == 2:
+                hours = int(time_nums[0])
+                minutes = int(time_nums[1])
+                if hours >= 12 and hours < 24 and minutes <= 60:
+                    setReminder(hours, minutes, "Alarm set")
+                elif hours < 12 and minutes <= 60:
+                    setReminder(hours + 12, minutes, "Alarm set")
                 else:
-                    if currenthour > int(hour):
-                        setReminder(int(hour), int(minutes))
-                    elif currenthour < int(hour):
-                        newHour = int(hour) + 12
-                        if newHour == 24:
-                            setReminder(0, 0)
-                        else:
-                            setReminder(newHour,int(minutes))
-                            print("alarm set")
+                    print("Please specify a correct time")
+        else:
+            for eachTag in blob.tags:
+                if "CD" == eachTag[1]:
+                    time_nums.append(eachTag[0])
+                    count += 1
+                print(time_nums)
+                print(count)
+                dt = list(time.localtime())
+                current_hour = dt[3]
+                current_minute = dt[4]
+                if count == 1:
+                    hour = int(time_nums[0])
+                    if hour < 23 and hour >=1 and isinstance( hour, int ):
+                       if current_hour>12 and current_hour <= 23:
+                           newHour = hour + 12
+                           if newHour > hour:
+                               print("in block one")
+                               setReminder(newHour,00,"set alarm")
+                           else:
+                               setReminder(hour,00,"set Alarm")
+                       elif current_hour<=12:
+                           if(hour <= 12):
+                               if(hour<=current_hour):
+                                   hour = hour + 12
+                                   if(hour == 24):
+                                        setReminder(00,00,"set Alarm")
+                                   else:
+                                       setReminder(hour,00,"set Alarm")
+
+                               else:
+                                   setReminder(hour,00,"setAlarm")
+                           else:
+                                setReminder(hour,00,"setAlarm")
                     else:
-                        if currentminute > int(minutes):
-                            setReminder(int(hour) +12,int(minutes))
-                        elif currentminute < int(minutes):
-                            setReminder(int(hour),int(minutes))
-                        else:
-                            print("Please specify am or pm")
+                       print("Please enter the correct time")
+                elif count == 2:
+                    hour = int(time_nums[0])
+                    minutes = int(time_nums[1])
+                    if hour < 23 and hour >= 1 and isinstance(hour, int) and minutes < 60:
+                        if current_hour > 12 and current_hour <= 23:
+                            newHour = hour + 12
+                            if newHour > hour:
+                                setReminder(newHour, minutes, "set alarm")
+                            elif newHour == current_hour:
+                                if current_minute < minutes:
+                                    setReminder(newHour,minutes,"set alarm")
+                                elif current_minute > minutes:
+                                    setReminder(hour,minutes,"set alarm")
+                                else:
+                                    print("Time elapsed already . please change the time")
 
-            else:
-                print("Only hours and minutes required")
+                        elif current_hour <= 12:
+                            if (hour <= 12):
+                                if hour < current_hour:
+                                    hour = hour + 12
+                                    if (hour == 24):
+                                        setReminder(00, minutes, "set Alarm")
+                                    else:
+                                        setReminder(hour,minutes, "set Alarm")
+
+                                elif hour > current_hour:
+                                    setReminder(hour,minutes, "setAlarm")
+                                else:
+                                    if(current_minute < minutes):
+                                        setReminder(hour,minutes,"set alarm")
+                                    elif(current_minute > minutes):
+                                        setReminder(hour+12,minutes,"set alarm")
+                                        if (hour == 24):
+                                            setReminder(00, minutes, "set Alarm")
+                                        else:
+                                            setReminder(hour, minutes, "set Alarm")
+                                    else:
+                                        print("Time elapsed already . please change the time")
+
+                            else:
+                                setReminder(hour,minutes, "setAlarm")
+                    else:
+                        print("Please enter the correct time")
+                else:
+                    print("hours and minutes not recognized")
 
 
 
 
 
-#Alarm(blob)
-#listen()'''
 
 
 
 
+
+
+
+                    #hours, minutes = map(int, eachTag[0].split(':'))
+                    #will ask user to say a message
+
+        #else:
+            #if "CD" == eachTag[1]
+
+def Search(blob):
+    index_list = []
+    count = 0
+    for item in blob.words:
+        if item == "find" or item == "search" or item == "open" or item == "browse":
+            index_list.append(blob.words.index(item))
+            count += 1
+    print(index_list)
+    if count == 0:
+        for eachWord in blob.words:
+            if eachWord == "Who" or eachWord == 'who' or blob.tags == 'NNP' or eachWord == "what" or eachWord == "how":
+                bingSearch(line_recognized)
+    else:
+        if index_list[0] == 0:
+            index_list[0] = index_list[0] + 1
+            bingSearch(' '.join(blob.words[index_list[0]:]))
+
+        else:
+            index_list[0]= index_list[0] + 1
+            bingSearch(' '.join(blob.words[index_list[0]:]))
+
+
+#Search(blob)
 
 #syns = wordnet.synsets("program")
 #print(syns[0].lemmas()[0].name())#just the word
 #print(syns[0].name()) #synset
-#print(syns[0].definition())# meaning
+#print(syns[0].definition())# meaning'''
+#Alarm(blob)
+
+     # error here code ok i will text blob wala problem solved
+
