@@ -9,7 +9,8 @@ data_repository = {
     "id" : [],
     "name" : [],
     "shortcuts" : [],
-
+    "time_period": [],
+#-----------THUMB----------
     "max_acc_@R_x" : [],
     "max_acc_@R_y" : [],
     "max_acc_@R_z": [],
@@ -24,8 +25,70 @@ data_repository = {
     "end_angle_@R_x": [],
     "end_angle_@R_y": [],
     "end_angle_@R_z": [],
+#-----------INDEX----------
+    "max_acc_^R_x": [],
+    "max_acc_^R_y": [],
+    "max_acc_^R_z": [],
+    "min_acc_^R_x": [],
+    "min_acc_^R_y": [],
+    "min_acc_^R_z": [],
 
-    "time_period": []
+    "start_angle_^R_x": [],
+    "start_angle_^R_y": [],
+    "start_angle_^R_z": [],
+
+    "end_angle_^R_x": [],
+    "end_angle_^R_y": [],
+    "end_angle_^R_z": [],
+
+#-----------MIDDLE----------
+    "max_acc_#R_x": [],
+    "max_acc_#R_y": [],
+    "max_acc_#R_z": [],
+    "min_acc_#R_x": [],
+    "min_acc_#R_y": [],
+    "min_acc_#R_z": [],
+
+    "start_angle_#R_x": [],
+    "start_angle_#R_y": [],
+    "start_angle_#R_z": [],
+
+    "end_angle_#R_x": [],
+    "end_angle_#R_y": [],
+    "end_angle_#R_z": [],
+
+#-----------RING-----------
+    "max_acc_$R_x": [],
+    "max_acc_$R_y": [],
+    "max_acc_$R_z": [],
+    "min_acc_$R_x": [],
+    "min_acc_$R_y": [],
+    "min_acc_$R_z": [],
+
+    "start_angle_$R_x": [],
+    "start_angle_$R_y": [],
+    "start_angle_$R_z": [],
+
+    "end_angle_$R_x": [],
+    "end_angle_$R_y": [],
+    "end_angle_$R_z": [],
+
+#-----------PINKY-----------
+    "max_acc_%R_x": [],
+    "max_acc_%R_y": [],
+    "max_acc_%R_z": [],
+    "min_acc_%R_x": [],
+    "min_acc_%R_y": [],
+    "min_acc_%R_z": [],
+
+    "start_angle_%R_x": [],
+    "start_angle_%R_y": [],
+    "start_angle_%R_z": [],
+
+    "end_angle_%R_x": [],
+    "end_angle_%R_y": [],
+    "end_angle_%R_z": [],
+
 }
 
 right_data = {
@@ -138,63 +201,67 @@ def get_OS_Left():
 
     return port
 
-def bluetooth(serRight):
-    while True:
-        # %: Pinky finger, ^: index finger, @: thumb, $: ring
-        try:
-            line = serRight.readline()
-            line = line.decode()
-            line = line.strip('\r')
-            line = line.strip('\n')
-
+def bluetooth(serRight, serLeft):
+    if serRight != 0:
+        while True:
+            # %: Pinky finger, ^: index finger, @: thumb, $: ring
             try:
-                if line[0] == "@":              #THUMB
-                    right_data["acc_@R_x"] = get_data(serRight)
-                    right_data["acc_@R_y"] = get_data(serRight)  # Meter per seconds square
-                    right_data["acc_@R_z"] = get_data(serRight)
-                    right_data["angle_@R_x"] = get_data(serRight)
-                    right_data["angle_@R_y"] = get_data(serRight) # Angle in degrees
-                    right_data["angle_@R_z"] = get_data(serRight)
+                line = serRight.readline()
+                line = line.decode()
+                line = line.strip('\r')
+                line = line.strip('\n')
 
-                elif line[0] == "^":            #INDEX FINGER
-                    right_data["acc_^R_x"] = get_data(serRight)
-                    right_data["acc_^R_y"] = get_data(serRight)  # Meter per seconds square
-                    right_data["acc_^R_z"] = get_data(serRight)
-                    right_data["angle_^R_x"] = get_data(serRight)
-                    right_data["angle_^R_y"] = get_data(serRight)  # Angle in degrees
-                    right_data["angle_^R_z"] = get_data(serRight)
+                try:
+                    if line[0] == "@":              #THUMB
+                        right_data["acc_@R_x"] = get_data(serRight)
+                        right_data["acc_@R_y"] = get_data(serRight)  # Meter per seconds square
+                        right_data["acc_@R_z"] = get_data(serRight)
+                        right_data["angle_@R_x"] = get_data(serRight)
+                        right_data["angle_@R_y"] = get_data(serRight) # Angle in degrees
+                        right_data["angle_@R_z"] = get_data(serRight)
+
+                    elif line[0] == "^":            #INDEX FINGER
+                        right_data["acc_^R_x"] = get_data(serRight)
+                        right_data["acc_^R_y"] = get_data(serRight)  # Meter per seconds square
+                        right_data["acc_^R_z"] = get_data(serRight)
+                        right_data["angle_^R_x"] = get_data(serRight)
+                        right_data["angle_^R_y"] = get_data(serRight)  # Angle in degrees
+                        right_data["angle_^R_z"] = get_data(serRight)
 
 
-                elif line[0] == "#":            #MIDDLE FINGER
-                    right_data["acc_#R_x"] = get_data(serRight)
-                    right_data["acc_#R_y"] = get_data(serRight)  # Meter per seconds square
-                    right_data["acc_#R_z"] = get_data(serRight)
-                    right_data["angle_#R_x"] = get_data(serRight)
-                    right_data["angle_#R_y"] = get_data(serRight)  # Angle in degrees
-                    right_data["angle_#R_z"] = get_data(serRight)
+                    elif line[0] == "#":            #MIDDLE FINGER
+                        right_data["acc_#R_x"] = get_data(serRight)
+                        right_data["acc_#R_y"] = get_data(serRight)  # Meter per seconds square
+                        right_data["acc_#R_z"] = get_data(serRight)
+                        right_data["angle_#R_x"] = get_data(serRight)
+                        right_data["angle_#R_y"] = get_data(serRight)  # Angle in degrees
+                        right_data["angle_#R_z"] = get_data(serRight)
 
-                elif line[0] == "$":            #RING FINGER
-                    right_data["acc_$R_x"] = get_data(serRight)
-                    right_data["acc_$R_y"] = get_data(serRight)  # Meter per seconds square
-                    right_data["acc_$R_z"] = get_data(serRight)
-                    right_data["angle_$R_x"] = get_data(serRight)
-                    right_data["angle_$R_y"] = get_data(serRight)  # Angle in degrees
-                    right_data["angle_$R_z"] = get_data(serRight)
+                    elif line[0] == "$":            #RING FINGER
+                        right_data["acc_$R_x"] = get_data(serRight)
+                        right_data["acc_$R_y"] = get_data(serRight)  # Meter per seconds square
+                        right_data["acc_$R_z"] = get_data(serRight)
+                        right_data["angle_$R_x"] = get_data(serRight)
+                        right_data["angle_$R_y"] = get_data(serRight)  # Angle in degrees
+                        right_data["angle_$R_z"] = get_data(serRight)
 
-                elif line[0] == "%":            #PINKY FINGER
-                    right_data["acc_%R_x"] = get_data(serRight)
-                    right_data["acc_%R_y"] = get_data(serRight)  # Meter per seconds square
-                    right_data["acc_%R_z"] = get_data(serRight)
-                    right_data["angle_%R_x"] = get_data(serRight)
-                    right_data["angle_%R_y"] = get_data(serRight)  # Angle in degrees
-                    right_data["angle_%R_z"] = get_data(serRight)
+                    elif line[0] == "%":            #PINKY FINGER
+                        right_data["acc_%R_x"] = get_data(serRight)
+                        right_data["acc_%R_y"] = get_data(serRight)  # Meter per seconds square
+                        right_data["acc_%R_z"] = get_data(serRight)
+                        right_data["angle_%R_x"] = get_data(serRight)
+                        right_data["angle_%R_y"] = get_data(serRight)  # Angle in degrees
+                        right_data["angle_%R_z"] = get_data(serRight)
 
+                except:
+                    pass
+                    # Wait for the character to come
+                print(right_data , end='\n\n')
             except:
-                pass
-                # Wait for the character to come
-            print(right_data , end='\n\n')
-        except:
-            return 1
+                return 1
+    else:
+        return 1
+
 
 def mouse(acc_x, acc_y, acc_z, angle_x, angle_y, angle_z, pre_coor_x, pre_coor_y):
     # Condition for mouse
@@ -246,21 +313,19 @@ def get_data(ser):
 def main():
     for i in list(range(5)):
         try:
-            flag = 0
             serRight = serial.Serial(get_OS_Right(), baudrate=115200, timeout=1)
-            flag = bluetooth(serRight)
-            if flag != 1:
-                break
-            print("device failed to connect. Reconnecting....")
         except:
-            pass
+            serRight = 0
+        try:
+            serLeft = serial.Serial(get_OS_Left(), baudrate= 115200, timeout=5)
+        except:
+            serLeft = 0
+        flag = bluetooth(serRight, serLeft)
+        if flag != 1:
+            break
+        print("device failed to connect. Reconnecting....")
+
     print("Failed to reconnect")
 
-
-    '''serLeft = serial.Serial(get_OS_Left(), baudrate= 115200, timeout=5)
-    print("Success")
-    while True:
-        print(serLeft.readline())
-        print("print")'''
 if __name__ == '__main__':
     main()
