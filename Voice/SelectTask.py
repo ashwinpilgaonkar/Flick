@@ -243,7 +243,7 @@ def switchTaskAtLowConfidence(x):
     else: speak("I am sorry I miscalculated something. Can you please speak again ?")
 
 #TaskSelection("I want to hear peacful music")
-line_recognized = "Who is Rashika Bhargava "
+line_recognized = "type some data for me"
 blob = TextBlob(line_recognized)
 
 def Askwords(blob):
@@ -456,3 +456,15 @@ def Search(blob):
 
      # error here code ok i will text blob wala problem solved
 
+def News(blob):
+    str = ' '.join(GetNoun(blob))
+    retrieveNews(str)
+#News(blob)
+
+def TypeInformation(blob):
+    for eachword in blob.words:
+        if eachword == "type" or eachword == "enter":
+            speak("Type mode on.")
+            speak("Iris is now ready to enter the text.")
+            #listen()
+TypeInformation(blob)
