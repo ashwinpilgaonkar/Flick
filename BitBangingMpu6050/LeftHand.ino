@@ -6,11 +6,19 @@
 #define I2C_TIMEOUT 100
 #define I2C_FASTMODE 1
 
-// ! = Thumb
+// ! = Thumb  
 // & = Index Finger
 // * = Middle Finger
 // ( = Ring Finger
 // ) = Pinky Finger
+
+//% = Pinky Finger
+// @ = Thumb
+// ^ = Index
+// # = Middle
+// $ = Ring 
+
+
 #include "SoftWire.h"
 
 #include <SoftwareSerial.h>
@@ -1080,8 +1088,8 @@ void mpunumber1()
     address=105;
     Wire.beginTransmission(address);
       error = Wire.endTransmission();
-    mySerial.println("The error is : ");
-    mySerial.println(error);
+   /* mySerial.println("The error is : ");
+    mySerial.println(error);*/
        if (error == 0)
         {                                                                           
           /*Serial.print("MPU number : ");
@@ -1240,14 +1248,25 @@ void mpunumber1()
   Serial.print(unfiltered_gyro_angle_y, 2);
   Serial.print(F(","));
   Serial.print(unfiltered_gyro_angle_z, 2);*/
-  mySerial.println("It has reached here : ");
-  mySerial.println(F("!"));             //Filtered angle
-  mySerial.print(angle_x, DEC);
-  mySerial.println(F(""));
-  mySerial.print(angle_y, DEC);
-  mySerial.println(F(""));
-  mySerial.print(angle_z, DEC);
-  mySerial.println(F(""));
+  int x,y,z;
+  x=(int)(angle_x);
+  y=(int)(angle_y);
+  z=(int)(angle_z);
+  String a=String(x);
+  String b=String(y);
+  String c=String(z);
+  String acc_x=String((int)accel_t_gyro.value.x_accel);
+  String acc_y=String((int)accel_t_gyro.value.y_accel);
+  String acc_z=String((int)accel_t_gyro.value.z_accel);
+
+
+  mySerial.println(F("@")); 
+  mySerial.println(acc_x);
+    mySerial.println(acc_y);
+  mySerial.println(acc_z);
+  mySerial.println(a);
+  mySerial.println(b);
+  mySerial.println(c);
   
   // Delay so we don't swamp the serial port
  
@@ -1281,8 +1300,8 @@ void mpunumber2()
     address=105;
     Wire.beginTransmission(address);
       error = Wire.endTransmission();
-       mySerial.println("The error is : ");
-    mySerial.println(error);
+      /* mySerial.println("The error is : ");
+    mySerial.println(error);*/
       if (error == 0)
         {
           /*Serial.print("MPU number : ");
@@ -1441,14 +1460,25 @@ void mpunumber2()
   Serial.print(unfiltered_gyro_angle_y, 2);
   Serial.print(F(","));
   Serial.print(unfiltered_gyro_angle_z, 2);*/
-  mySerial.println(F("&"));             //Filtered angle
-  mySerial.print(angle_x, DEC);
-  mySerial.println(F(","));
-  mySerial.print(angle_y, DEC);
-  mySerial.println(F(","));
-  mySerial.print(angle_z, DEC);
-  mySerial.println(F(""));
-  
+ int x,y,z;
+  x=(int)(angle_x);
+  y=(int)(angle_y);
+  z=(int)(angle_z);
+  String a=String(x);
+  String b=String(y);
+  String c=String(z);
+  String acc_x=String((int)accel_t_gyro.value.x_accel);
+  String acc_y=String((int)accel_t_gyro.value.y_accel);
+  String acc_z=String((int)accel_t_gyro.value.z_accel);
+
+
+  mySerial.println(F("^")); 
+  mySerial.println(acc_x);
+  mySerial.println(acc_y);
+  mySerial.println(acc_z);
+  mySerial.println(a);
+  mySerial.println(b);
+  mySerial.println(c);
   // Delay so we don't swamp the serial port
   
          // nDevices++;
@@ -1480,8 +1510,8 @@ void mpunumber3()
     address=105;
     Wire.beginTransmission(address);
       error = Wire.endTransmission();
-       mySerial.println("The error is : ");
-    mySerial.println(error);
+       /*mySerial.println("The error is : ");
+    mySerial.println(error);*/
       if (error == 0)
         {
           /*Serial.print("MPU number : ");
@@ -1640,13 +1670,25 @@ void mpunumber3()
   Serial.print(unfiltered_gyro_angle_y, 2);
   Serial.print(F(","));
   Serial.print(unfiltered_gyro_angle_z, 2);*/
-  mySerial.println(F("*"));             //Filtered angle
-  mySerial.print(angle_x, DEC);
-  mySerial.println(F(","));
-  mySerial.print(angle_y, DEC);
-  mySerial.println(F(","));
-  mySerial.print(angle_z, DEC);
-  mySerial.println(F(""));
+  int x,y,z;
+  x=(int)(angle_x);
+  y=(int)(angle_y);
+  z=(int)(angle_z);
+  String a=String(x);
+  String b=String(y);
+  String c=String(z);
+  String acc_x=String((int)accel_t_gyro.value.x_accel);
+  String acc_y=String((int)accel_t_gyro.value.y_accel);
+  String acc_z=String((int)accel_t_gyro.value.z_accel);
+
+
+  mySerial.println(F("#")); 
+  mySerial.println(acc_x);
+  mySerial.println(acc_y);
+  mySerial.println(acc_z);
+  mySerial.println(a);
+  mySerial.println(b);
+  mySerial.println(c);
   
   // Delay so we don't swamp the serial port
   
@@ -1679,8 +1721,8 @@ void mpunumber4()
     address=105;
     Wire.beginTransmission(address);
       error = Wire.endTransmission();
-       mySerial.println("The error is : ");
-    mySerial.println(error);
+      /* mySerial.println("The error is : ");
+    mySerial.println(error);*/
       if (error == 0)
         {
           /*Serial.print("MPU number : ");
@@ -1840,13 +1882,25 @@ void mpunumber4()
   Serial.print(unfiltered_gyro_angle_y, 2);
   Serial.print(F(","));
   Serial.print(unfiltered_gyro_angle_z, 2);*/
-  mySerial.println(F("("));             //Filtered angle
-  mySerial.print(angle_x, DEC);
-  mySerial.println(F(","));
-  mySerial.print(angle_y, DEC);
-  mySerial.println(F(","));
-  mySerial.print(angle_z, DEC);
-  mySerial.println(F(""));
+ int x,y,z;
+  x=(int)(angle_x);
+  y=(int)(angle_y);
+  z=(int)(angle_z);
+  String a=String(x);
+  String b=String(y);
+  String c=String(z);
+  String acc_x=String((int)accel_t_gyro.value.x_accel);
+  String acc_y=String((int)accel_t_gyro.value.y_accel);
+  String acc_z=String((int)accel_t_gyro.value.z_accel);
+
+
+  mySerial.println(F("$")); 
+  mySerial.println(acc_x);
+    mySerial.println(acc_y);
+  mySerial.println(acc_z);
+  mySerial.println(a);
+  mySerial.println(b);
+  mySerial.println(c);
   
   // Delay so we don't swamp the serial port
   
@@ -1879,9 +1933,9 @@ void mpunumber5()
     address=105;
     Wire.beginTransmission(address);
       error = Wire.endTransmission();
-       mySerial.println("The error is : ");
-    mySerial.println(error);
-      if (error == 0)
+       /*mySerial.println("The error is : ");
+    mySerial.println(error);*/
+    if(error==0)
         {
           /*Serial.print("MPU number : ");
           Serial.println(flag-5); 
@@ -2039,13 +2093,25 @@ void mpunumber5()
   Serial.print(unfiltered_gyro_angle_y, 2);
   Serial.print(F(","));
   Serial.print(unfiltered_gyro_angle_z, 2);*/
-  mySerial.println(F(")"));             //Filtered angle
-  mySerial.print(angle_x, DEC);
-  mySerial.println(F(","));
-  mySerial.print(angle_y, DEC);
-  mySerial.println(F(","));
-  mySerial.print(angle_z, DEC);
-  mySerial.println(F(""));
+int x,y,z;
+  x=(int)(angle_x);
+  y=(int)(angle_y);
+  z=(int)(angle_z);
+  String a=String(x);
+  String b=String(y);
+  String c=String(z);
+  String acc_x=String((int)accel_t_gyro.value.x_accel);
+  String acc_y=String((int)accel_t_gyro.value.y_accel);
+  String acc_z=String((int)accel_t_gyro.value.z_accel);
+
+
+  mySerial.println(F("%")); 
+  mySerial.println(acc_x);
+    mySerial.println(acc_y);
+  mySerial.println(acc_z);
+  mySerial.println(a);
+  mySerial.println(b);
+  mySerial.println(c);
   
   // Delay so we don't swamp the serial port
   
