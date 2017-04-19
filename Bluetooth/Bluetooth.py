@@ -400,6 +400,31 @@ def bluetooth(serRight, serLeft, recognitionFlag=0):
                     print("Previous: ", pre_right_data)
 # ----------------RECOGNITION----------------------------
 
+                i=0
+                j=0
+                pos=0
+                match = False
+                while(i<len(data_repository_right.get(0))):
+                    while(j+15<60):
+                        #If current data of Thumb (angles and accln) is greater than min and less than max value
+                        if(right_data.get(j) < data_repository_right.get(j)[i]) and (right_data.get(j) > data_repository_right.get(j+15)[i]):
+                            pos = i
+                            match = True
+
+                        else:
+                            match = False
+
+                        j = j+5
+
+                        if (j==15):
+                            j=30
+                i+=1
+
+                if match:
+                    shortcut = data_repository_right.get("shortcuts")[pos]
+                    #Implement Shortcut
+
+
             if recognitionFlag == 1 and iteration_Count > initial_Gap_Interval:
                 if recognitionCount > 5:
                     print(data_repository_right)
