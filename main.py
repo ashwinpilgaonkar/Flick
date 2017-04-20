@@ -8,6 +8,7 @@ import threading
 #from Bluetooth import *
 import asyncio
 from Voice.Likelyhood_Selection import bernoulli_Selection
+from Voice.SelectTask import *
 
 
 
@@ -121,19 +122,34 @@ class MainWindow(QMainWindow, UI.MainWindow.Ui_MainWindow, QTableWidget):
                 self.VoiceLabel.setText("Google failed to understand the audio.")
             else:
                 self.VoiceLabel.setText(text)
-                selection_list  = bernoulli_Selection(text)
-                print(selection_list)
-                self.progressBar_Search.setValue(selection_list[0] * 100)
-                self.progressBar_ScreenShot.setValue(selection_list[1] * 100)
-                self.progressBar_Type.setValue(selection_list[2] * 100)
-                self.progressBar_Youtube.setValue(selection_list[3] * 100)
-                self.progressBar_News.setValue(selection_list[4] * 100)
-                self.progressBar_Reminder.setValue(selection_list[5] * 100)
-                self.progressBar_email.setValue(selection_list[6] * 100)
+                if "type" in text.split() or "types" in text.split() or "tap" in text.split() or "mode" in text.split() or "typ" in text.split() :
+                    self.progressBar_Type.setValue(100)
+                    self.VoiceLabel.setText("Type mode ON")
+                    loop = asyncio.get_event_loop()
+                    future = asyncio.Future()
+                    TypeInformation(loop, future=future)
+                else:
+                    index, similarity  = bernoulli_Selection(text)
+                    print(index)
+                    if index == 1:
+                        self.progressBar_Search.setValue(similarity * 100)
+                    elif index == 2:
+                        self.progressBar_ScreenShot.setValue(similarity * 100)
+                    elif index == 3:
+                        self.progressBar_Type.setValue(similarity * 100)
+                    elif index == 4:
+                        self.progressBar_Youtube.setValue(similarity * 100)
+                    elif index == 5:
+                        self.progressBar_News.setValue(similarity * 100)
+                    elif index == 6:
+                        self.progressBar_Reminder.setValue(similarity * 100)
+                    else:
+                        self.progressBar_email.setValue(similarity * 100)
+
+                    future.done()
         except:
              self.VoiceLabel.setText("Something went wrong. Restart the application")
 
-        future.done()
         return
 
 

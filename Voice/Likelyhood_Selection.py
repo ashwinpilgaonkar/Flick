@@ -4,15 +4,16 @@ import numpy as np
 import math
 import json
 import logging
+import copy
 
 Responses = {"search": ["who is donald trump", "what is cnc machine", "how to implement quicksort algorithm",
                          "can you search how to remove stop words", "what is the weather today"],
-              "screenshot": ["take a screenshot"],
-              "type": ["can you type hello how are you"],
+              "screenshot": ["screenshot"],
+              "type": ["type this"],
               "youtube": ["I want to hear peaceful music", "play me a song starboy", "I want to watch a movie star wars"],
-              "news": ["what is todays headlines", "tell me news about narendra modi"],
+              "news": ["what is todays headlines", "tell me news about narendra modi", "what is the weather today"],
               "reminder": ["set an alarm at 8:30 pm", "remind me, I have a meeting at 8:00 pm"],
-              "email": ["send an email to rashika bhargava"]
+              "email": ["send an email to gmail"]
             }
 
 # Questions = [ ["",""], ["",""], ["",""], ["",""], ["",""], ["",""], ["",""] ]
@@ -219,17 +220,9 @@ def bernoulli_Selection(text):
     max_Similarity_Index = 0
     checkFlag = False
 
-    sim_list = [0,0,0,0,0,0,0]
     for i in list(range(6)):
         try:
-            if i == 6:
-                similarity1 = match_Similarity_with_Resposes(ClassName[Objects[i].index], text)
-                if max_Similarity_Index < similarity1:
-                    max_Similarity_Index = Objects[i].index
-                    checkFlag = True
-                    sim_list.insert(i,similarity1)
-
-            elif Objects[i].probability == Objects[i + 1].probability or Objects[i].probability - Objects[
+            if Objects[i].probability == Objects[i + 1].probability or Objects[i].probability - Objects[
                         i + 1].probability <= 0.1:
                 checkFlag = True
                 similarity1 = match_Similarity_with_Resposes(ClassName[Objects[i].index], text)
@@ -238,11 +231,9 @@ def bernoulli_Selection(text):
                 if max_Similarity_Index < similarity1:
                     max_Similarity_Index = Objects[i].index
 
-                elif max_Similarity_Index < similarity2:
+                if max_Similarity_Index < similarity2:
                     max_Similarity_Index = Objects[i + 1].index
 
-                sim_list.insert(i, similarity1)
-                sim_list.insert(i+1,similarity2)
             else:
                 break
         except:
@@ -250,11 +241,11 @@ def bernoulli_Selection(text):
 
     if checkFlag == True:
         append_In_MatchTable(blob, ClassName[max_Similarity_Index], text)
-        switchExecuteTask(max_Similarity_Index, text)
+        thread = threading.Thread(target=switchExecuteTask, args=(max_Similarity_Index,text))
+        thread.start()
     else:
-        sim_list[0] = 0.1
-        switchExecuteTask(Objects[0].index, text)
-
+        thread = threading.Thread(target=switchExecuteTask, args=(Objects[0].index,text))
+        thread.start()
     try:
         with open('Responses.json', 'w') as outfile:
             json.dump(Responses, outfile)
@@ -266,7 +257,11 @@ def bernoulli_Selection(text):
     except:
         print("Could not write Match_Table.json")
 
-    return selection_list
+    if checkFlag == True:
+        return max_Similarity_Index, selection_list[max_Similarity_Index]
+    else:
+        return Objects[0].index, selection_list[Objects[0].index]
+
 
 def append_In_MatchTable(blob, className, text):
     nouns = GetNoun(blob)
@@ -353,7 +348,7 @@ class Rank:
 
 
 def main():
-    bernoulli_Selection("send an email to a friend")
+    bernoulli_Selection("what is the weather today")
     # Automate Responses
 
 if __name__ == '__main__':

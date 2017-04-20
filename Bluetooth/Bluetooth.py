@@ -8,6 +8,7 @@ import threading
 import math
 import copy
 import time
+import json
 
 
 data_repository_right = {
@@ -17,77 +18,77 @@ data_repository_right = {
     "shortcuts" : [],
     "time_period": [],
 
-    0:[],    #   "max_acc_@R_x" : [],
-    1:[],    #   "max_acc_^R_x": [],
-    2:[],    #   "max_acc_#R_x": [],
-    3:[],    #   "max_acc_$R_x": [],
-    4:[],    #   "max_acc_%R_x": [],
+    "0":[],    #   "max_acc_@R_x" : [],
+    "1":[],    #   "max_acc_^R_x": [],
+    "2":[],    #   "max_acc_#R_x": [],
+    "3":[],    #   "max_acc_$R_x": [],
+    "4":[],    #   "max_acc_%R_x": [],
 
-    5:[],    #   "max_acc_@R_y" : [],
-    6:[],    #   "max_acc_^R_y": [],
-    7:[],    #   "max_acc_#R_y": [],
-    8:[],    #   "max_acc_$R_y": [],
-    9:[],    #   "max_acc_%R_y": [],
+    "5":[],    #   "max_acc_@R_y" : [],
+    "6":[],    #   "max_acc_^R_y": [],
+    "7":[],    #   "max_acc_#R_y": [],
+    "8":[],    #   "max_acc_$R_y": [],
+    "9":[],    #   "max_acc_%R_y": [],
 
-    10:[],    #   "max_acc_@R_z": [],
-    11:[],    #   "max_acc_^R_z": [],
-    12:[],    #   "max_acc_#R_z": [],
-    13:[],    #   "max_acc_$R_z": [],
-    14:[],    #   "max_acc_%R_z": [],
+    "10":[],    #   "max_acc_@R_z": [],
+    "11":[],    #   "max_acc_^R_z": [],
+    "12":[],    #   "max_acc_#R_z": [],
+    "13":[],    #   "max_acc_$R_z": [],
+    "14":[],    #   "max_acc_%R_z": [],
 
-    15:[],    #   "min_acc_@R_x": [],
-    16:[],    #   "min_acc_^R_x": [],
-    17:[],    #   "min_acc_#R_x": [],
-    18:[],    #   "min_acc_$R_x": [],
-    19:[],    #   "min_acc_%R_x": [],
+    "15":[],    #   "min_acc_@R_x": [],
+    "16":[],    #   "min_acc_^R_x": [],
+    "17":[],    #   "min_acc_#R_x": [],
+    "18":[],    #   "min_acc_$R_x": [],
+    "19":[],    #   "min_acc_%R_x": [],
 
-    20:[],    #   "min_acc_@R_y": [],
-    21:[],    #   "min_acc_^R_y": [],
-    22:[],    #   "min_acc_#R_y": [],
-    23:[],    #   "min_acc_$R_y": [],
-    24:[],    #   "min_acc_%R_y": [],
+    "20":[],    #   "min_acc_@R_y": [],
+    "21":[],    #   "min_acc_^R_y": [],
+    "22":[],    #   "min_acc_#R_y": [],
+    "23":[],    #   "min_acc_$R_y": [],
+    "24":[],    #   "min_acc_%R_y": [],
 
-    25:[],    #   "min_acc_@R_z": [],
-    26:[],    #   "min_acc_^R_z": [],
-    27:[],    #   "min_acc_#R_z": [],
-    28:[],    #   "min_acc_$R_z": [],
-    29:[],    #   "min_acc_%R_z": [],
+    "25":[],    #   "min_acc_@R_z": [],
+    "26":[],    #   "min_acc_^R_z": [],
+    "27":[],    #   "min_acc_#R_z": [],
+    "28":[],    #   "min_acc_$R_z": [],
+    "29":[],    #   "min_acc_%R_z": [],
 
-    30:[],    #   "start_angle_@R_x":[],
-    31:[],    #   "start_angle_^R_x": [],
-    32:[],    #   "start_angle_#R_x": [],
-    33:[],    #   "start_angle_$R_x": [],
-    34:[],    #   "start_angle_%R_x": [],
+    "30":[],    #   "start_angle_@R_x":[],
+    "31":[],    #   "start_angle_^R_x": [],
+    "32":[],    #   "start_angle_#R_x": [],
+    "33":[],    #   "start_angle_$R_x": [],
+    "34":[],    #   "start_angle_%R_x": [],
 
-    35:[],    #   "start_angle_@R_y": [],
-    36:[],    #   "start_angle_^R_y": [],
-    37:[],    #   "start_angle_#R_y": [],
-    38:[],    #   "start_angle_$R_y": [],
-    39:[],    #   "start_angle_%R_y": [],
+    "35":[],    #   "start_angle_@R_y": [],
+    "36":[],    #   "start_angle_^R_y": [],
+    "37":[],    #   "start_angle_#R_y": [],
+    "38":[],    #   "start_angle_$R_y": [],
+    "39":[],    #   "start_angle_%R_y": [],
 
-    40:[],    #   "start_angle_@R_z": [],
-    41:[],    #   "start_angle_^R_z": [],
-    42:[],    #   "start_angle_#R_z": [],
-    43:[],    #   "start_angle_$R_z": [],
-    44:[],    #   "start_angle_%R_z": [],
+    "40":[],    #   "start_angle_@R_z": [],
+    "41":[],    #   "start_angle_^R_z": [],
+    "42":[],    #   "start_angle_#R_z": [],
+    "43":[],    #   "start_angle_$R_z": [],
+    "44":[],    #   "start_angle_%R_z": [],
 
-    45:[],    #   "end_angle_@R_x": [],
-    46:[],    #   "end_angle_^R_x": [],
-    47:[],    #   "end_angle_#R_x": [],
-    48:[],    #   "end_angle_$R_x": [],
-    49:[],    #   "end_angle_%R_x": [],
+    "45":[],    #   "end_angle_@R_x": [],
+    "46":[],    #   "end_angle_^R_x": [],
+    "47":[],    #   "end_angle_#R_x": [],
+    "48":[],    #   "end_angle_$R_x": [],
+    "49":[],    #   "end_angle_%R_x": [],
 
-    50:[],    #   "end_angle_@R_y": [],
-    51:[],    #   "end_angle_^R_y": [],
-    52:[],    #   "end_angle_#R_y": [],
-    53:[],    #   "end_angle_$R_y": [],
-    54:[],    #   "end_angle_%R_y": [],
+    "50":[],    #   "end_angle_@R_y": [],
+    "51":[],    #   "end_angle_^R_y": [],
+    "52":[],    #   "end_angle_#R_y": [],
+    "53":[],    #   "end_angle_$R_y": [],
+    "54":[],    #   "end_angle_%R_y": [],
 
-    55:[],    #   "end_angle_@R_z": [],
-    56:[],    #   "end_angle_^R_z": [],
-    57:[],    #   "end_angle_#R_z": [],
-    58:[],    #   "end_angle_$R_z": [],
-    59:[],    #   "end_angle_%R_z": [],
+    "55":[],    #   "end_angle_@R_z": [],
+    "56":[],    #   "end_angle_^R_z": [],
+    "57":[],    #   "end_angle_#R_z": [],
+    "58":[],    #   "end_angle_$R_z": [],
+    "59":[],    #   "end_angle_%R_z": [],
 }
 
 data_repository_left = {
@@ -252,13 +253,16 @@ pre_left_data = copy.deepcopy(left_data)
 
 average_right_data = copy.deepcopy(right_data)
 
-movement_Sensitivity_x= 5500
-movement_Sensitivity_y= 1000
-movement_Sensitivity_z= 1000
+movement_Sensitivity_x= 2
+movement_Sensitivity_y= 2
+movement_Sensitivity_z= 2
 
 threshold_movement_Sensitivity = 14000
 recognition_Gap_Interval = 200
 initial_Gap_Interval = 200
+
+angle_tolerance = 5
+acc_tolerance = 0.5
 
 def get_OS_Right():
     port = "/dev/tty.Right-DevB"
@@ -300,9 +304,11 @@ def bluetooth(serRight, serLeft, recognitionFlag=0):
         global  average_right_data
         global right_data
         global left_data
+        global  data_repository_right
         iteration_Count = 0
         averageFlag = True
-#------Recognition variables--------------
+
+        #------Recognition variables--------------
         recognitionCount = 0
         recognitionGapCount = 0
         start_time = 0
@@ -317,88 +323,147 @@ def bluetooth(serRight, serLeft, recognitionFlag=0):
         while True:
             # %: Pinky finger, ^: index finger, @: thumb, $: ring
 #-------------RIGHT HAND--------------------------------
-            if serRight != 0:
-                try:
-                    line = serRight.readline()
-                    #print(line)
-                    line = line.decode()
-                    line = line.strip('\r')
-                    line = line.strip('\n')
+            try:
+                line = serRight.readline()
+                line = line.decode('utf-8')
+                line = line.strip('\r')
+                line = line.strip('\n')
 
-                    if line[0] == "@":              #THUMB
-                        right_data[0] = get_data(serRight)
-                        right_data[5] = get_data(serRight)  # Meter per seconds square
-                        right_data[10] = get_data(serRight)
-                        right_data[15] = get_data(serRight)
-                        right_data[20] = get_data(serRight) # Angle in degrees
-                        right_data[25] = get_data(serRight)
+                if "@" in line:              #THUMB
+                    #print(line[0])
+                    right_data[0] = get_data(serRight)
+                    #print(right_data[0])
+                    right_data[5] = get_data(serRight)  # Meter per seconds square
+                    #print(right_data[5])
+                    right_data[10] = get_data(serRight)
+                    #print(right_data[10])
+                    right_data[15] = get_data(serRight)
+                    #print(right_data[15])
+                    right_data[20] = get_data(serRight) # Angle in degrees
+                    #print(right_data[20])
+                    right_data[25] = get_data(serRight)
+                    #print(right_data[25])
 
-                    elif line[0] == "^":            #INDEX FINGER
-                        right_data[1] = get_data(serRight)
-                        right_data[6] = get_data(serRight)  # Meter per seconds square
-                        right_data[11] = get_data(serRight)
-                        right_data[16] = get_data(serRight)
-                        right_data[21] = get_data(serRight)  # Angle in degrees
-                        right_data[26] = get_data(serRight)
+                elif "^" in line:            #INDEX FINGER
+                    #print(line[0])
+                    right_data[1] = get_data(serRight)
+                    #print(right_data[1])
+                    right_data[6] = get_data(serRight)  # Meter per seconds square
+                    #print(right_data[6])
+                    right_data[11] = get_data(serRight)
+                    #print(right_data[11])
+                    right_data[16] = get_data(serRight)
+                    #print(right_data[16])
+                    right_data[21] = get_data(serRight)  # Angle in degrees
+                    #print(right_data[21])
+                    right_data[26] = get_data(serRight)
+                    #print(right_data[26])
 
 
-                    elif line[0] == "#":            #MIDDLE FINGER
-                        right_data[2] = get_data(serRight)
-                        right_data[7] = get_data(serRight)  # Meter per seconds square
-                        right_data[12] = get_data(serRight)
-                        right_data[17] = get_data(serRight)
-                        right_data[22] = get_data(serRight)  # Angle in degrees
-                        right_data[27] = get_data(serRight)
+                elif "#" in line:            #MIDDLE FINGER
+                    #print(line[0])
+                    right_data[2] = get_data(serRight)
+                    #print(right_data[2])
+                    right_data[7] = get_data(serRight)  # Meter per seconds square
+                    #print(right_data[7])
+                    right_data[12] = get_data(serRight)
+                    #print(right_data[12])
+                    right_data[17] = get_data(serRight)
+                    #print(right_data[17])
+                    right_data[22] = get_data(serRight)  # Angle in degrees
+                    #print(right_data[22])
+                    right_data[27] = get_data(serRight)
+                    #print(right_data[27])
 
-                    elif line[0] == "$":            #RING FINGER
-                        right_data[3] = get_data(serRight)
-                        right_data[8] = get_data(serRight)  # Meter per seconds square
-                        right_data[13] = get_data(serRight)
-                        right_data[18] = get_data(serRight)
-                        right_data[23] = get_data(serRight)  # Angle in degrees
-                        right_data[28] = get_data(serRight)
+                elif "$" in line:            #RING FINGER
+                    #print(line[0])
+                    right_data[3] = get_data(serRight)
+                    #print(right_data[3])
+                    right_data[8] = get_data(serRight)  # Meter per seconds square
+                    #print(right_data[8])
+                    right_data[13] = get_data(serRight)
+                    #print(right_data[13])
+                    right_data[18] = get_data(serRight)
+                    #print(right_data[18])
+                    right_data[23] = get_data(serRight)  # Angle in degrees
+                    #print(right_data[23])
+                    right_data[28] = get_data(serRight)
+                    #print(right_data[28])
 
-                    elif line[0] == "%":            #PINKY FINGER
-                        right_data[4] = get_data(serRight)
-                        right_data[9] = get_data(serRight)  # Meter per seconds square
-                        right_data[14] = get_data(serRight)
-                        right_data[19] = get_data(serRight)
-                        right_data[24] = get_data(serRight)  # Angle in degrees
-                        right_data[29] = get_data(serRight)
 
-# Refining by taking average of values
-                    if iteration_Count < initial_Gap_Interval and averageFlag == True:
-                        count = 0
-                        for curr_Key in right_data:
-                            if count > 14: break
-                            average_right_data[curr_Key] += right_data[curr_Key]
 
-                    elif iteration_Count >= initial_Gap_Interval and averageFlag == True:
-                        count = 0
-                        for curr_Key in right_data:
-                            if count > 14: break
-                            average_right_data[curr_Key] /= initial_Gap_Interval
-                            right_data[curr_Key] /= average_right_data[curr_Key]
-                            count += 1
-                        averageFlag = False
-                except:
-                    if serRight.isOpen() == True:
-                        iteration_Count = 0
-                        print("Lost connection... Reconnecting")
-                        serRight.close()
-                        for i in list(range(5)):
-                            try:
-                                serRight = serial.Serial(get_OS_Right(), baudrate=115200, timeout=1)
-                                print("Connected.")
-                                break
-                            except:
-                                print("Reconnecting..", i + 1)
-                                #print(right_data)
+                elif "%" in line:            #PINKY FINGER
+                    #print(line[0])
+                    right_data[4] = get_data(serRight)
+                    #print(right_data[4])
+                    right_data[9] = get_data(serRight)  # Meter per seconds square
+                    #print(right_data[9])
+                    right_data[14] = get_data(serRight)
+                    #print(right_data[14])
+                    right_data[19] = get_data(serRight)
+                    #print(right_data[19])
+                    right_data[24] = get_data(serRight)  # Angle in degrees
+                    #print(right_data[14])
+                    right_data[29] = get_data(serRight)
+                    #print(right_data[29])
 
-                if initial_Gap_Interval < iteration_Count:
-                    print("Current: ", right_data)
-                    print("Previous: ", pre_right_data)
-# ----------------RECOGNITION----------------------------
+            except Exception as e:
+                print("Exception", format(e))
+                pass
+                # Refining by taking average of values
+
+            if iteration_Count < initial_Gap_Interval and averageFlag == True:
+                count = 0
+                for curr_Key in right_data:
+                    if count > 14: break
+                    average_right_data[curr_Key] += right_data[curr_Key]
+
+            elif iteration_Count >= initial_Gap_Interval and averageFlag == True:
+                count = 0
+                for curr_Key in right_data:
+                    if count > 14: break
+                    try:
+                        average_right_data[curr_Key] /= initial_Gap_Interval
+                    except:
+                        pass
+                    count += 1
+                averageFlag = False
+            elif iteration_Count >= initial_Gap_Interval and averageFlag == False:
+                count = 0
+                for curr_Key in right_data:
+                    if count > 14: break
+                    try:
+                        right_data[curr_Key] /= average_right_data[curr_Key]
+                    except:
+                        pass
+                    count += 1
+
+            if recognitionFlag != 1:
+                for eachID in data_repository_right["id"]:
+                    fingerCount = 0                         #Finger Recognised count
+                    for max_x, max_y, max_z, min_x, min_y, min_z, start_angle_x, start_angle_y, start_angle_z, right_x, right_y, right_z, right_angle_x, right_angle_y, right_angle_z in zip(list(range(0,5)), list(range(5, 10)), list(range(10, 15)), list(range(15, 20)), list(range(20, 25)), list(range(25, 30)), list(range(30, 35)), list(range(35, 40)), list(range(40, 45)), list(range(0, 5)), list(range(5, 10)),list(range(10, 15)),list(range(15, 20)),list(range(20, 25)),list(range(25, 30))):
+                        if          (right_data[right_x] > data_repository_right[str(max_x)][eachID] - acc_tolerance)\
+                                and (right_data[right_x] < data_repository_right[str(max_x)][eachID] + acc_tolerance)\
+                                and (right_data[right_y] > data_repository_right[str(max_y)][eachID] - acc_tolerance)\
+                                and (right_data[right_y] < data_repository_right[str(max_y)][eachID] + acc_tolerance)\
+                                and (right_data[right_z] > data_repository_right[str(max_z)][eachID] - acc_tolerance)\
+                                and (right_data[right_z] < data_repository_right[str(max_z)][eachID] + acc_tolerance)\
+                                and (right_data[right_angle_x] < (data_repository_right[str(start_angle_x)][eachID] + angle_tolerance))\
+                                and (right_data[right_angle_x] > (data_repository_right[str(start_angle_x)][eachID] - angle_tolerance))\
+                                and (right_data[right_angle_y] < (data_repository_right[str(start_angle_y)][eachID] + angle_tolerance))\
+                                and (right_data[right_angle_y] > (data_repository_right[str(start_angle_y)][eachID] - angle_tolerance))\
+                                and (right_data[right_angle_z] < (data_repository_right[str(start_angle_z)][eachID] + angle_tolerance))\
+                                and (right_data[right_angle_z] > (data_repository_right[str(start_angle_z)][eachID] - angle_tolerance)):
+
+                            fingerCount += 1
+
+                    if fingerCount == 3:
+                        print("Initial condition true")
+                    else:
+                        print("not matched", "\t", fingerCount)
+                    #print(data_repository_right, end="\n\n")
+                    #print(right_data, end="\n\n")
+ # ----------------RECOGNITION----------------------------
 
                 i=0
                 j=0
@@ -429,22 +494,26 @@ def bluetooth(serRight, serLeft, recognitionFlag=0):
                 if recognitionCount > 5:
                     print(data_repository_right)
                     print("Ok Recognized")
-                    return
+
+                    recognitionFlag = 0
+                    try:
+                        with open('DataRepositoryRight.json', 'w') as outfile:
+                            json.dump(data_repository_right, outfile)
+                    except:
+                        print("Could not write DataRepositoryRight.json")
+
+                    #return
                 else: print("Repeat", recognitionCount)
                 curr_time = time.time()
 
                 for x_values, y_values, z_values in zip(list(range(5)), list(range(5, 10)),list(range(10, 15))):
                  #only x, y, z acceleration values of each finger
-                    if math.fabs(math.fabs(right_data[x_values]) - math.fabs(pre_right_data[x_values])) > movement_Sensitivity_x and math.fabs(math.fabs(right_data[y_values]) - math.fabs(pre_right_data[y_values])) > movement_Sensitivity_y and math.fabs(math.fabs(right_data[z_values]) - math.fabs(pre_right_data[z_values])) > movement_Sensitivity_z:
+                    if math.fabs(right_data[x_values]) > movement_Sensitivity_x and math.fabs(right_data[y_values]) > movement_Sensitivity_y and math.fabs(right_data[z_values]) > movement_Sensitivity_z:
                         if recognitionMode == False:
                             print("Recognition period ON", "True")
                             start_time = curr_time
-                            recognitionMode = True
-
-                        if recognitionMode == True and recognitionGapCount < recognition_Gap_Interval:
-                            print(x_values, "\t", math.fabs(math.fabs(right_data[x_values]) - math.fabs(pre_right_data[x_values])),   y_values, "\t", math.fabs(math.fabs(right_data[y_values]) - math.fabs(pre_right_data[y_values])),   z_values, "\t", math.fabs(math.fabs(right_data[z_values]) - math.fabs(pre_right_data[z_values])))  # Finger moved
                             store_gesture(False, "right",name="Dummy", shortcuts="dummy", curr_id= curr_id)
-                            break
+                            recognitionMode = True
 
                     elif recognitionMode == True and recognitionGapCount > recognition_Gap_Interval:
                         recognitionMode = False
@@ -464,12 +533,13 @@ def bluetooth(serRight, serLeft, recognitionFlag=0):
                 recognitionGapCount += 1
 
 def initialize_data_repository_right():
+    global  data_repository_right
     data_repository_right["id"].append(0)
     data_repository_right["name"].append(" ")
     data_repository_right["shortcuts"].append(" ")
     data_repository_right["time_period"].append(0)
     for i in list(range(60)):
-        data_repository_right[i].append(0)
+        data_repository_right[str(i)].append(0)
 
 def store_gesture(recognitionModeEnd, hand="right", time= 0, name="Dummy", shortcuts="dummy", curr_id = 0):
     if hand == "right":
@@ -479,38 +549,36 @@ def store_gesture(recognitionModeEnd, hand="right", time= 0, name="Dummy", short
             data_repository_right["shortcuts"][curr_id] = shortcuts
 
             for i in list(range(15)):                                           # Max Acceleration
-                val = get_data_from_Data_Repository(i, curr_id)
-                if val < right_data[i]:
-                    data_repository_right[i][curr_id] = right_data[i]
+            #    val = get_data_from_Data_Repository(str(i), curr_id)
+            #    if val < right_data[i]:
+                    data_repository_right[str(i)][curr_id] = right_data[i]
 
             for i, j in zip(list(range(15,30)), list(range(15))):                    #Min Acceleration
-                val = get_data_from_Data_Repository(i, curr_id)
-                if val == 0:
-                    data_repository_right[i][curr_id] = 0
-                elif val > right_data[j]:
-                    data_repository_right[i][curr_id] = right_data[j]
+             #   val = get_data_from_Data_Repository(str(i), curr_id)
+             #   if val > right_data[j] or val == 0:
+                    data_repository_right[str(i)][curr_id] = right_data[j]
 
             for i, j in zip(list(range(30, 45)), list(range(15, 30))):          #Start Index
-                val = get_data_from_Data_Repository(i,curr_id)
-                if val == 0:
-                   data_repository_right[i][curr_id] = right_data[j]
-                else:
-                    data_repository_right[i][curr_id] = (right_data[j] + val) / 2   #Average
+ #               val = get_data_from_Data_Repository(str(i),curr_id)
+                #if val == 0:
+                #   data_repository_right[str(i)][curr_id] = right_data[j]
+                #else:
+                data_repository_right[str(i)][curr_id] = right_data[j]  #Average
 
 #------------------------------------------------------------------------------------------------
         elif recognitionModeEnd == True:
             for i, j in zip(list(range(45, 60)), list(range(15, 30))):               #End Index
-                val = get_data_from_Data_Repository(i, curr_id)
-                if val == 0:
-                    data_repository_right[i][curr_id] = right_data[j]
-                else:
-                    data_repository_right[i][curr_id] = (right_data[j] + val) / 2  # Average
+#                val = get_data_from_Data_Repository(str(i), curr_id)
+ #               if val == 0:
+  #                  data_repository_right[str(i)][curr_id] = right_data[j]
+   #             else:
+                data_repository_right[str(i)][curr_id] = right_data[j]
 
-            val = get_data_from_Data_Repository("time_period", curr_id)
-            if val == 0:
+    #        val = get_data_from_Data_Repository("time_period", curr_id)
+    #        if val == 0:
                 data_repository_right["time_period"][curr_id] = time  # Time period
-            else:
-                data_repository_right["time_period"][curr_id] = (time + val) / 2  # Time period
+     #       else:
+      #          data_repository_right["time_period"][curr_id] = (time + val) / 2  # Time period
 
 
     elif hand == "left":
@@ -518,6 +586,7 @@ def store_gesture(recognitionModeEnd, hand="right", time= 0, name="Dummy", short
     return
 
 def get_data_from_Data_Repository(key, curr_id):
+    global data_repository_right
     try:
         val = data_repository_right[key][curr_id]
     except:
@@ -572,46 +641,39 @@ def get_data(ser):
     except: return 0
 
 def gesture_Recognition():
-        try:
-            serRight = serial.Serial(get_OS_Right(), baudrate=115200, timeout=1)
-            print("Connected Right")
-        except:
-            serRight = 0
-        try:
-            serLeft = serial.Serial(get_OS_Left(), baudrate=115200, timeout=1)
-            print("Connected Left")
-        except:
-            serLeft = 0
-        if serRight == 0 and serLeft == 0:
-            print("Both devices are unreachable.")
-            return 1
-        else:
-            #speak("Gesture recognition mode on.")
-            #speak("Show me your gesture.")
-            bluetooth(serRight,serLeft, recognitionFlag=1)
+        global data_repository_right
+        global data_repository_left
 
-            return 0
+#Left and Right hand connection---------------------------------------------------------
+
+        serRight = serial.Serial(get_OS_Right(), baudrate=115200, timeout=1)
+        print("Connected Right")
+#        serLeft = serial.Serial(get_OS_Left(), baudrate=115200, timeout=1)
+ #       print("Connected Left")
+#Load Data repository -----------------------------------------------------------------------
+
+        try:
+            with open('DataRepositoryRight.json', 'r') as inputFile:
+                data_repository_right = json.load(inputFile)
+        except:
+            print("DataRepositoryRight.json file not found")
+
+        try:
+            with open('DataRepositoryLeft.json', 'r') as inputFile:
+                data_repository_left = json.load(inputFile)
+        except:
+            print("DataRepositoryLeft.json file not found")
+#Connection-----------------------------------------------------------------------------------------
+
+        if serRight.isOpen():# or serLeft.isOpen():
+            bluetooth(serRight,0, recognitionFlag=0)
+        else:
+            print("Both are unreachable")
+
+        return 0
 
 def main():
-
-    for i in list(range(1)):
-        try:
-            serRight = serial.Serial(get_OS_Right(), baudrate=115200, timeout=5)
-        except:
-            serRight = 0
-        try:
-            serLeft = serial.Serial(get_OS_Left(), baudrate= 115200, timeout=5)
-        except:
-            serLeft = 0
-        if serRight == 0 and serLeft == 0:
-            break
-        else:
-            thread = threading.Thread(target=bluetooth, args= (serRight, serLeft))
-            thread.start()
-
-        #print("device failed to connect. Reconnecting....")
-
-    print("Failed to reconnect")
+    pass
 
 if __name__ == '__main__':
     gesture_Recognition()

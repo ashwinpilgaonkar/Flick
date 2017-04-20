@@ -11,7 +11,9 @@ from Voice.BingSearch import bingSearch
 from Voice.Youtube import playYouTube
 from Voice.GoogleNewsParser import retrieveNews
 from Voice.Alarm import setReminder
-import re
+import asyncio
+import threading
+import pyautogui as pa
 
 Category = [{"verbs": ["Search","Find","browse","open"],  "nouns":[]},
             {"verbs":["Scroll","up","down", "move"],    "nouns":["screen","scroll", "bar"]},
@@ -222,12 +224,12 @@ def SimilarityComparison(indexOfCategory, verbs, nouns):
 
 
 def switchExecuteTask(x, text):
-    if x == 0: bingSearch(text)
-    elif x == 1: speak("Screenshot yet to be coded")
-    elif x == 2: speak("Type yet to be coded")
+    if x == 0: Search(TextBlob(text))
+    elif x == 1: pa.screenshot("VA_Screenshot.png")
+    elif x == 2: TypeInformation(TextBlob(text))
     elif x == 3: playYouTube(text)
-    elif x == 4: retrieveNews(text)
-    elif x == 5: speak("Alarm yet to be coded")
+    elif x == 4: News(TextBlob(text))
+    elif x == 5: alarm(TextBlob(text))
     elif x == 6: speak("Email yet to be coded")
     else: speak("I am sorry I miscalculated something. Can you please speak again ?")
 
@@ -243,18 +245,8 @@ def switchTaskAtLowConfidence(x):
     else: speak("I am sorry I miscalculated something. Can you please speak again ?")
 
 #TaskSelection("I want to hear peacful music")
-line_recognized = "type some data for me"
-blob = TextBlob(line_recognized)
-
-def Askwords(blob):
-   # print(blob.words)
-    for eachWord in blob.words:
-        if eachWord == "Who" or eachWord == 'who' or blob.tags == 'NNP':
-            wikiSearch(str(blob))
-            break
-    else:
-        pass
-        #Bing search
+#line_recognized = "type some data for me"
+#blob = TextBlob(line_recognized)
 
 
     #under construction------------------------------->
@@ -282,22 +274,33 @@ def Alarm(blob):
             if count == 1:
                 if ':' in time_nums[0]:
                     hours, minutes = map(int, time_nums[0].split(':'))
-                    setReminder(hours,minutes,"Alarm set")
+                    if hours<13 and minutes<60:
+                        if hours == 12:
+                            setReminder(00,minutes,"Alarm set")
+                            break
+                        else:
+                            setReminder(hours,minutes,"Alarm set")
+                            break
+                    break
                 else:
                     hours = int(time_nums[0])
-                    if(hours == 12):
+                    if hours == 12:
                         setReminder(00,00,"Alarm set")
+                        break
                     else:
                         print("alarm set for", hours)
                         setReminder(hours,00,"Alarm set")
+                        break
 
             elif count == 2:
                 hours = int(time_nums[0])
                 minutes = int(time_nums[1])
                 if (hours == 12):
                     setReminder(00,minutes, "Alarm set")
+                    break
                 else:
                     setReminder(hours,minutes,"Alarm set")
+                    break
             else:#when count comes out to be more than two
                 print("Time was not specified correctly. Specfiy the time again")
                 #listen()
@@ -313,8 +316,10 @@ def Alarm(blob):
                     hours, minutes = map(int, time_nums[0].split(':'))
                     if hours >= 12 and hours < 24 and minutes <= 60:
                         setReminder(hours,minutes,"Alarm set")
+                        break
                     elif hours<12 and minutes <= 60:
                         setReminder(hours + 12,minutes,"Alarm set")
+                        break
                     else:
                         print("Please specify a correct time")
             elif count == 2:
@@ -322,8 +327,10 @@ def Alarm(blob):
                 minutes = int(time_nums[1])
                 if hours >= 12 and hours < 24 and minutes <= 60:
                     setReminder(hours, minutes, "Alarm set")
+                    break
                 elif hours < 12 and minutes <= 60:
                     setReminder(hours + 12, minutes, "Alarm set")
+                    break
                 else:
                     print("Please specify a correct time")
         else:
@@ -344,21 +351,27 @@ def Alarm(blob):
                            if newHour > hour:
                                print("in block one")
                                setReminder(newHour,00,"set alarm")
+                               break
                            else:
                                setReminder(hour,00,"set Alarm")
+                               break
                        elif current_hour<=12:
                            if(hour <= 12):
                                if(hour<=current_hour):
                                    hour = hour + 12
                                    if(hour == 24):
                                         setReminder(00,00,"set Alarm")
+                                        break
                                    else:
                                        setReminder(hour,00,"set Alarm")
+                                       break
 
                                else:
                                    setReminder(hour,00,"setAlarm")
+                                   break
                            else:
                                 setReminder(hour,00,"setAlarm")
+                                break
                     else:
                        print("Please enter the correct time")
                 elif count == 2:
@@ -369,11 +382,14 @@ def Alarm(blob):
                             newHour = hour + 12
                             if newHour > hour:
                                 setReminder(newHour, minutes, "set alarm")
+                                break
                             elif newHour == current_hour:
                                 if current_minute < minutes:
                                     setReminder(newHour,minutes,"set alarm")
+                                    break
                                 elif current_minute > minutes:
                                     setReminder(hour,minutes,"set alarm")
+                                    break
                                 else:
                                     print("Time elapsed already . please change the time")
 
@@ -383,46 +399,29 @@ def Alarm(blob):
                                     hour = hour + 12
                                     if (hour == 24):
                                         setReminder(00, minutes, "set Alarm")
+                                        break
                                     else:
                                         setReminder(hour,minutes, "set Alarm")
+                                        break
 
                                 elif hour > current_hour:
                                     setReminder(hour,minutes, "setAlarm")
+                                    break
                                 else:
                                     if(current_minute < minutes):
                                         setReminder(hour,minutes,"set alarm")
+                                        break
                                     elif(current_minute > minutes):
                                         setReminder(hour+12,minutes,"set alarm")
-                                        if (hour == 24):
-                                            setReminder(00, minutes, "set Alarm")
-                                        else:
-                                            setReminder(hour, minutes, "set Alarm")
-                                    else:
-                                        print("Time elapsed already . please change the time")
-
+                                        break
                             else:
                                 setReminder(hour,minutes, "setAlarm")
+                                break
                     else:
                         print("Please enter the correct time")
                 else:
                     print("hours and minutes not recognized")
 
-
-
-
-
-
-
-
-
-
-
-
-                    #hours, minutes = map(int, eachTag[0].split(':'))
-                    #will ask user to say a message
-
-        #else:
-            #if "CD" == eachTag[1]
 
 def Search(blob):
     index_list = []
@@ -435,7 +434,7 @@ def Search(blob):
     if count == 0:
         for eachWord in blob.words:
             if eachWord == "Who" or eachWord == 'who' or blob.tags == 'NNP' or eachWord == "what" or eachWord == "how":
-                bingSearch(line_recognized)
+                bingSearch(blob.sentences)
     else:
         if index_list[0] == 0:
             index_list[0] = index_list[0] + 1
@@ -445,8 +444,95 @@ def Search(blob):
             index_list[0]= index_list[0] + 1
             bingSearch(' '.join(blob.words[index_list[0]:]))
 
+def alarm(blob):
+    time_list = []
+    locale_str = ""
+    for eachTag in blob.tags:
+        if eachTag[1] == "CD":
+            time_list.append(eachTag[0])
+        elif eachTag[0] == "am" or eachTag[0] == "A.M" or eachTag[0] == "pm" or eachTag[0] == "P.M":
+            locale_str = eachTag[0]
+
+    minutes_str = ""
+    hours_str = ""
+    count = 0
+    hour = 0
+    minute = 0
+    colanFlag = False
+    for eachTime in time_list:
+        for eachChar in eachTime:
+            if eachChar != ":" and colanFlag is False:
+                hours_str += eachChar
+            elif eachChar == ":":
+                colanFlag = True
+                continue
+            if colanFlag is True and count == 0:
+                minutes_str += eachChar
+
+        if colanFlag is False and count == 0:
+            hour = int(eachTime)
+        elif colanFlag is True and count == 0:
+            hour = int(hours_str)
+            minute = int(minutes_str)
+
+        elif count > 0:
+            minute += int(eachTime)
+        count += 1
+
+    print(hour, minute, locale_str)
+
+    if locale_str == "":
+        dt = list(time.localtime())
+        curr_hour = dt[3]
+        curr_min = dt[4]
+
+        if hour < 24 and hour >= 1 and curr_hour > 12 and curr_hour <= 23 and minute < 60:
+                newHour = hour + 12
+                if newHour > hour:
+                    setReminder(newHour, minute, "set alarm")
+                else:
+                    setReminder(hour, minute, "set Alarm")
+
+        elif hour < 24 and hour >= 1 and curr_hour < 13 and curr_hour >= 0 and minute < 60:
+            if hour <= 12 and hour < curr_hour:
+                hour = hour + 12
+                if hour == 24:
+                    setReminder(00 ,minute,"set alarm")
+                else:
+                    setReminder(hour,minute,"set alarm")
+            elif hour <= 12 and hour > curr_hour:
+                setReminder(hour,minute,"set alarm")
+            elif hour <= 12 and hour == curr_hour:
+                if curr_min < minute:
+                    setReminder(hour,minute,"set alarm")
+                else:
+                    hour = hour + 12
+                    if hour == 24:
+                        setReminder(00,minute,"set alarm")
+                    else:
+                        setReminder(hour,minute,"set alarm")
+            elif hour > 12 :
+                setReminder(hour,minute,"set alarm")
+            else:
+                speak("please speak the correct time")
+
+    elif locale_str == "pm" or "P.M" and minute < 60:
+        if hour < 12 and hour > 0:
+            setReminder(hour+12,minute,"set alarm")
+        elif hour < 24 and hour > 11:
+            setReminder(hour,minute,"set alarm")
+
+    elif locale_str == "am" or "A.M" and minute < 60:
+        if hour <= 12 and hour > 0:
+            if hour == 12 :
+                setReminder(00, minute,"set alarm")
+            else:
+                setReminder(hour,minute,"set alarm")
+        else:
+            speak("Time spoken in a wrong format")
 
 #Search(blob)
+
 
 #syns = wordnet.synsets("program")
 #print(syns[0].lemmas()[0].name())#just the word
@@ -459,12 +545,29 @@ def Search(blob):
 def News(blob):
     str = ' '.join(GetNoun(blob))
     retrieveNews(str)
-#News(blob)
 
-def TypeInformation(blob):
-    for eachword in blob.words:
-        if eachword == "type" or eachword == "enter":
+def TypeInformation(loop, future):
             speak("Type mode on.")
             speak("Iris is now ready to enter the text.")
-            #listen()
-TypeInformation(blob)
+            asyncio.ensure_future(listen(future))
+            future.add_done_callback(speech_recognition_complete_Type)
+            thread = threading.Thread(target=speech_recognition_start_Type, args=(future, loop))
+            thread.start()
+
+def speech_recognition_start_Type(future, loop):
+        try:
+            loop.run_until_complete(future=future)
+        except:
+            print("Speech recognition failed to start")
+            speak("Speech recognition failed to start")
+            return
+
+def speech_recognition_complete_Type(future):
+    text = future.result()
+    pa.typewrite(text, interval=0.25)
+    print(text)
+    future.done()
+
+
+if __name__ == '__main__':
+    TypeInformation()
